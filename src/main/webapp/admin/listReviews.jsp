@@ -135,7 +135,7 @@
         let rID = $(this).data("id");
 
         let choice = parseInt($(this).find('input[name="choice"]').val());
-        // console.log(rID + ' ' + choice);
+        // console.Log(rID + ' ' + choice);
 
 
         $.ajax({

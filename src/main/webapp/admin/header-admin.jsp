@@ -368,7 +368,7 @@ passkey
             url: "${pageContext.request.contextPath}/load-logo",
             type: "get",
             success: function (data) {
-                // console.log(data)
+                // console.Log(data)
                 const contextPath = "<%=request.getContextPath()%>";
                 let imgSrc = contextPath + "/assets/pic/homePage/" + data.logoName
                 $("#logoName").attr("src", imgSrc)

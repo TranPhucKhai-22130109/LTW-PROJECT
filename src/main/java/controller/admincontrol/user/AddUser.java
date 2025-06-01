@@ -64,7 +64,7 @@ public class AddUser extends HttpServlet {
 
             } catch (Exception e) {
                 // Bắt lỗi không mong muốn khác
-                e.printStackTrace(); // Ghi log lỗi
+                e.printStackTrace(); // Ghi Log lỗi
                 msg = "Đã có lỗi xảy ra. Vui lòng thử lại.";
             }
         }
