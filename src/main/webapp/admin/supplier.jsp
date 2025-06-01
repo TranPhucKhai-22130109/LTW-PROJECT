@@ -7,86 +7,31 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Quản lý nhà cung cấp</title>
+
+    <!-- Bootstrap  -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jQuery  -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- Font Awesome (cho các icon) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"/>
+
+    <!-- Google Icon -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+
+    <%-- Custom css --%>
     <link rel="stylesheet" href="<%= request.getContextPath()%>/assets/css/admin/styleAllInventory.css"/>
+    <link rel="stylesheet" href="<%= request.getContextPath()%>/assets/css/admin/modalForm.css"/>
     <style>
-
-        #loadingOverlay {
-            position: fixed;
-            background: rgba(255, 255, 255, 0.3);
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background-color: var(--White);
-            width: 500px;
-            max-width: 90%;
-            margin: 50px auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-content h3 {
-            margin-top: 0;
-            color: #fff;
-        }
-
-        .modal-content label {
-            display: block;
-            color: #fff;
-            margin: 10px 0 5px;
-            font-weight: bold;
-        }
-
-        .modal-content input,
-        .modal-content textarea,
-        .modal-content select {
-            background-color: aliceblue !important;
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        .modal-content button {
-            margin-right: 10px;
-        }
-
-        #archive-supplier {
+        #archive-supplier{
             display: none;
         }
-
     </style>
 </head>
 <body class="dark-theme">
 <jsp:include page="header-admin.jsp"></jsp:include>
-
 <div id="main-content">
     <div class="main-container">
         <div class="header">
@@ -98,7 +43,7 @@
 
             <%--  Todo: Danh sách các lô hàng đã lưu trữ --%>
             <a class="btn btn-primary btn-customize py-2 mb-2"
-               href="#" role="button" onclick="openTableArchive()">Các nhà cung cấp đãlưu trữ</a>
+               href="#" role="button" onclick="openTableArchive()">Các nhà cung cấp đã lưu trữ</a>
 
             <table class="myTable display">
                 <thead>
@@ -226,7 +171,8 @@
                         </td>
                         <td>
                             <a class="btn btn-success btn-sm"
-                               href="<%=request.getContextPath()%>/admin/soft-delete?supplierID=${ar_sup.supplierID}&&option=1">Bỏ lưu trữ</a>
+                               href="<%=request.getContextPath()%>/admin/soft-delete?supplierID=${ar_sup.supplierID}&&option=1">Bỏ
+                                lưu trữ</a>
                             <a class="btn btn-danger btn-sm"
                                href="#"
                                onclick="return confirmDelete();">Xóa vĩnh viễn</a>

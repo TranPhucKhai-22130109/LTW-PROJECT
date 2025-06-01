@@ -45,77 +45,24 @@
             href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
     />
     <link rel="stylesheet" href="<%= request.getContextPath()%>/assets/css/admin/styleAllInventory.css"/>
+    <link rel="stylesheet" href="<%= request.getContextPath()%>/assets/css/admin/modalForm.css"/>
     <style>
-
-        #loadingOverlay {
-            position: fixed;
-            background: rgba(255, 255, 255, 0.3);
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
+        #uploadForm {
+            display: none;
         }
 
-        /* Modal Styles */
-        .modal {
+        .modal-backdrop.fade.show {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
         }
 
         .modal-content {
-            background-color: var(--White);
-            width: 500px;
-            max-width: 90%;
-            margin: 50px auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-content h3 {
-            margin-top: 0;
             color: #fff;
         }
 
-        .modal-content label {
-            display: block;
-            color: #fff;
-            margin: 10px 0 5px;
-            font-weight: bold;
-        }
-
-        .modal-content input,
-        .modal-content textarea,
-        .modal-content select {
-            background-color: aliceblue !important;
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        .modal-content button {
-            margin-right: 10px;
-        }
-
-        #archive-batches {
-            display: none;
-        }
-
-        #uploadForm {
-            display: none;
+        .note {
+            font-size: 12px; /* Kích thước chữ dễ đọc */
+            font-style: italic;
+            flex-shrink: 0; /* Không co lại */
         }
     </style>
 </head>
@@ -143,7 +90,7 @@
                     <th>Mã lô</th>
                     <th>Sản phẩm</th>
                     <th>Số lượng</th>
-                    <th>Giá</th>
+                    <th>Giá (giá/1sp)</th>
                     <th>Ngày nhập</th>
                     <th>Nhà cung cấp</th>
                     <th>Thời gian tạo</th>
@@ -157,14 +104,16 @@
                         <td>${batch.batchID}</td>
                         <td>${batch.batchNumber}</td>
                         <td>${batch.productName}</td>
-                        <td>${batch.quantity}</td>
-                        <td>${batch.price}</td>
+                        <td data-id="batch-quantity">${batch.quantity}</td>
+                        <td data-id="batch-price">${batch.price}</td>
                         <td>${batch.importDate}</td>
                         <td>${batch.supplierName != null ? batch.supplierName : 'N/A'}</td>
                         <td>${batch.createdAt}</td>
                         <td>
                             <label>
-                                <select onchange="changeUsedStatus(${batch.batchID},this)" name="usedStatus"
+                                <select
+                                        data-original="${batch.isUsed}"
+                                        onchange="changeUsedStatus(${batch.batchID},this)" name="usedStatus"
                                         style="background-color: white !important;">
                                     <option value="0" <c:if test="${batch.isUsed == 0}">selected</c:if>>Không sử
                                         dụng
@@ -176,16 +125,6 @@
 
                         </td>
                         <td>
-                            <c:if test="${batch.isUsed == 1}">
-                                <button
-                                        class="btn btn-success btn-sm"
-                                        onclick="showBatchesEditForm('${batch.batchID}', '${batch.batchNumber}','${batch.productID}',
-                                                '${batch.quantity}', '${batch.price}','${batch.importDate}',
-                                                '${batch.supplierID}', '${batch.createdAt}')">
-                                    Tạo phiếu chỉnh Sửa
-                                </button>
-                            </c:if>
-
                             <c:if test="${batch.isUsed == 0}">
                                 <button
                                         class="btn btn-success btn-sm"
@@ -195,13 +134,10 @@
                                     Chỉnh Sửa
                                 </button>
                             </c:if>
-
-                            <button onclick="confirmDelete()" type="button" class="btn btn-danger btn-sm">
-                                <a class="text-white"
-                                   href="<%=request.getContextPath()%>/admin/deleteBatch?batchID=${batch.batchID}&&option=1">
-                                    Lưu
-                                    trữ</a>
-                            </button>
+                            <a class="text-white btn btn-danger btn-sm"
+                               onclick="return confirmAction('Bạn có muốn lưu trữ lô hàng này')"
+                               href="<%=request.getContextPath()%>/admin/deleteBatch?batchID=${batch.batchID}&&option=1">
+                                Lưu trữ</a>
                         </td>
                     </tr>
                 </c:forEach>
@@ -331,9 +267,9 @@
                                    href="<%=request.getContextPath()%>/admin/deleteBatch?batchID=${ar.batchID}&&option=0">
                                     Bỏ lưu trữ </a>
                             </button>
-                            <button class="btn btn-danger btn-sm">
-                                Xóa vĩnh viễn
-                            </button>
+                                <%--   <button class="btn btn-danger btn-sm">--%>
+                                <%--   Xóa vĩnh viễn--%>
+                                <%--   </button>--%>
                         </td>
 
                     </tr>
@@ -346,18 +282,18 @@
 
     </div>
 </div>
+
 <!-- Loading Overlay -->
 <div id="loadingOverlay" style="display:none;">
     <div class="spinner-border text-white" role="status">
         <span class="visually-hidden">Loading...</span>
     </div>
 </div>
-
 <script>
     // Show form 'EDIT' batches
-    function showBatchesEditForm(batchesId, batchesNumber, productID, quantity, price, importDate, supplierID, createAt) {
+    function showBatchesEditForm(batchesId, batchNumber, productID, quantity, price, importDate, supplierID, createAt) {
         document.getElementById("batchesId").value = batchesId;
-        document.getElementById("batchesNumber").value = batchesNumber;
+        document.getElementById("batchesNumber").value = batchNumber;
         document.getElementById("quantity").value = quantity;
         document.getElementById("price").value = price;
         document.getElementById("importDate").value = importDate;
@@ -442,6 +378,10 @@
     // Change used status
     async function changeUsedStatus(batchID, selectBox) {
         const originalValue = selectBox.getAttribute('data-original'); // giữ trạng thái ban đầu
+        if (!confirmAction('Bạn có muốn thay đổi trạng thái lô này')) {
+            selectBox.value = originalValue;
+            return;
+        }
         const selectedValue = selectBox.value; // value status
 
         let url = `${pageContext.request.contextPath}/admin/status-used`
@@ -468,7 +408,7 @@
     }
 
     // upload file to import batches
-   async function uploadFile() {
+    async function uploadFile() {
         let fileName = document.getElementById("formFile").files[0].name;
         console.log(fileName);
 
@@ -500,8 +440,8 @@
     }
 
     // Helper function
-    function confirmDelete() {
-        return confirm("Bạn có chắc chắn muốn lưu trữ lô hàng này?");
+    function confirmAction(text) {
+        return confirm(text);
     }
 
     function openTableArchive() {

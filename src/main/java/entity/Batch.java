@@ -1,8 +1,5 @@
 package entity;
 
-import java.sql.Date;
-import java.sql.Timestamp;
-
 public class Batch {
     private int batchID;
     private int productID;
@@ -41,13 +38,14 @@ public class Batch {
 
     // Constructor cho logic đọc qua file excel để thêm lô
     public Batch(int productID, String batchNumber, int quantity, double price,
-                 String importDate, Integer supplierID,
+                 String importDate, String createdAt, Integer supplierID,
                  byte isDeleted, byte isUsed) {
         this.productID = productID;
         this.batchNumber = batchNumber;
         this.quantity = quantity;
         this.price = price;
         this.importDate = importDate;
+        this.createdAt = createdAt;
         this.supplierID = supplierID;
         this.isDeleted = isDeleted;
         this.isUsed = isUsed;

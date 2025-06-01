@@ -5,14 +5,14 @@ import com.google.gson.JsonObject;
 import dao.BatchDAO;
 import entity.Batch;
 import helper.ExcelReader;
+import helper.ExtendFunctionBatches;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
 
-import java.io.File;
 import java.io.IOException;
-
 import java.util.List;
+
 
 @WebServlet(name = "AddBatchByExcel", value = "/admin/add-batch-excel")
 public class AddBatchByExcel extends HttpServlet {
@@ -26,6 +26,7 @@ public class AddBatchByExcel extends HttpServlet {
         ExcelReader excelReader = new ExcelReader();
         List<Batch> list_batches = excelReader.readBatchesFromExcel(filePath);
         boolean isSuccess = false;
+
         for (Batch b : list_batches) {
             isSuccess = new BatchDAO().addBatch(b);
         }
