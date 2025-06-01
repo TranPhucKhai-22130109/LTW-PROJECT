@@ -15,9 +15,9 @@ ssh.settings {
 }
 remotes {
     host {
-        host = '192.168.1.126'
+        host = '188.166.180.98'
         user = 'root'
-        password = 'tung123'
+        password = 'uBuntu@134tung'
     }
 }
 
@@ -105,12 +105,17 @@ task docker_upload_file_to_server {
                 execute 'mkdir -p /usr/deploy'
 
                 // Xóa file cũ nếu có
-                remove '/usr/deploy/Project-LTW.war'
-                remove '/usr/deploy/Project-LTW'
+//                remove '/usr/deploy/Project-LTW.war'
+//                remove '/usr/deploy/Project-LTW'
+
+                remove '/usr/deploy/ROOT.war'
+                remove '/usr/deploy/ROOT'
 
                 // Upload file
+//                put from: "${project.projectDir}/build/libs/Project-LTW-1.0-SNAPSHOT.war",
+//                        into: "/usr/deploy/Project-LTW.war"
                 put from: "${project.projectDir}/build/libs/Project-LTW-1.0-SNAPSHOT.war",
-                        into: "/usr/deploy/Project-LTW.war"
+                    into: "/usr/deploy/ROOT.war"
             }
         }
     }

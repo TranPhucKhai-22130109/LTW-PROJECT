@@ -62,8 +62,8 @@ public class BatchDAO {
     public boolean addBatch(Batch batch) {
         int rowsAffected = JDBIContext.getJdbi().withHandle(handle ->
                 handle.createUpdate("""
-                                INSERT INTO batches (productID, batchNumber, quantity, price, importDate, supplierID, isDeleted)
-                                VALUES (:productID, :batchNumber, :quantity, :price, :importDate, :supplierID, :isDeleted)
+                                INSERT INTO batches (productID, batchNumber, quantity, price, importDate, supplierID, isDeleted, isUsed)
+                                VALUES (:productID, :batchNumber, :quantity, :price, :importDate, :supplierID, :isDeleted, :isUsed)
                                 """)
                         .bind("productID", batch.getProductID())
                         .bind("batchNumber", batch.getBatchNumber())
@@ -72,6 +72,7 @@ public class BatchDAO {
                         .bind("importDate", batch.getImportDate())
                         .bind("supplierID", batch.getSupplierID())
                         .bind("isDeleted", batch.getIsDeleted())
+                        .bind("isUsed", batch.getIsUsed())
                         .execute()
         );
         syncInventoryForProductIDs(JDBIContext.getJdbi().open(), List.of(batch.getProductID()));
@@ -214,6 +215,17 @@ public class BatchDAO {
         });
     }
 
+    // update status (isUsed=0 || 1)
+    public boolean updateUsedStatus(String batchId, Byte isUsed) {
+        int rowsAffected = JDBIContext.getJdbi().withHandle(handle ->
+                handle.createUpdate("UPDATE batches SET isUsed = :isUsed WHERE batchID = :batchID")
+                        .bind("batchID", batchId)
+                        .bind("isUsed", isUsed)
+                        .execute()
+        );
+        return rowsAffected > 0;
+    }
+
     // Sync batches and inventory
     private void syncInventoryForProductIDs(Handle handle, List<Integer> productIDs) {
         if (productIDs.isEmpty()) {
@@ -232,29 +244,6 @@ public class BatchDAO {
                 .bindList("productIDs", productIDs)
                 .execute();
     }
-
-    public List<Batch> getBatchesNum() {
-        return JDBIContext.getJdbi().withHandle(handle ->
-                handle.createQuery("""
-                                SELECT b.batchNumber
-                                FROM batches b
-                                """)
-                        .mapToBean(Batch.class)
-                        .list()
-        );
-    }
-
-    // update status (isUsed=0 || 1)
-    public boolean updateUsedStatus(String batchId, Byte isUsed) {
-        int rowsAffected = JDBIContext.getJdbi().withHandle(handle ->
-                handle.createUpdate("UPDATE batches SET isUsed = :isUsed WHERE batchID = :batchID")
-                        .bind("batchID", batchId)
-                        .bind("isUsed", isUsed)
-                        .execute()
-        );
-        return rowsAffected > 0;
-    }
-
 
 }
 

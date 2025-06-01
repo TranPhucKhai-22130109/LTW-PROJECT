@@ -123,6 +123,25 @@ public class ProductDAO {
         );
     }
 
+    // thêm vào qua EXCEL
+    public void insertProduct(Product product) {
+        JDBIContext.getJdbi().useHandle(handle -> {
+            handle.createUpdate("INSERT INTO products (productID, productName, productPrice, brand, color, material, weight, dimensions) " +
+                            "VALUES (:productID, :productName, :productPrice, :brand, :color, :material, :weight, :dimensions)")
+                    .bind("productID", product.getProductID())
+                    .bind("productName", product.getProductName())
+                    .bind("productPrice", product.getProductPrice())
+                    .bind("brand", product.getBrand())
+                    .bind("color", product.getColor())
+                    .bind("material", product.getMaterial())
+                    .bind("weight", product.getWeight())
+                    .bind("dimensions", product.getDimensions())
+                    .execute();
+        });
+    }
+
+
+
     public int updateProduct(Product product) {
         return JDBIContext.getJdbi().withHandle(handle ->
                 handle.createUpdate("Update products SET productName = :productName,\n" +
@@ -259,6 +278,12 @@ public class ProductDAO {
                 .collect(Collectors.toMap(Inventory::getProductID, inv -> inv));
     }
 
+    public List<Product> getAllProductID() {
+        return JDBIContext.getJdbi().withHandle(handle ->
+                (handle.createQuery("select productID from products").mapToBean(Product.class).list())
+        );
+    }
+
     public static void main(String[] args) {
         ProductDAO dao = new ProductDAO();
         Map<Integer, Inventory> inventoryMap = dao.getInventoryMap();
@@ -266,6 +291,8 @@ public class ProductDAO {
             System.out.println(inventory.getQuantityInStock());
         }
     }
+
+
 }
 
 
