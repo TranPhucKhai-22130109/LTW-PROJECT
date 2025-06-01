@@ -20,12 +20,12 @@ public class Product implements Serializable {
 
     public String color;
     public String material;
-    public String weight;
+    public double weight;
     public String dimensions;
     public boolean bestSeller;
 
     public Product(int productID, String productName, String productDes, double productPrice, String productImage, int cateID, String shortDes, double discountPrice,
-                   byte isDiscount, int manuID, String brand,  String color, String material, String weight, String dimensions, boolean bestSeller) {
+                   byte isDiscount, int manuID, String brand, String color, String material, double weight, String dimensions, boolean bestSeller) {
         this.productID = productID;
         this.productName = productName;
         this.productDes = productDes;
@@ -45,6 +45,19 @@ public class Product implements Serializable {
     }
 
     public Product() {
+    }
+
+    // Constructor cho logic đọc qua excel
+    public Product(int productID, String productName, double productPrice, String brand, String color, String material, double weight, String dimensions) {
+        this.productID = productID;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.discountPrice = discountPrice;
+        this.brand = brand;
+        this.color = color;
+        this.material = material;
+        this.weight = weight;
+        this.dimensions = dimensions;
     }
 
     public int getProductID() {
@@ -152,11 +165,11 @@ public class Product implements Serializable {
         this.material = material;
     }
 
-    public String getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(String weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 

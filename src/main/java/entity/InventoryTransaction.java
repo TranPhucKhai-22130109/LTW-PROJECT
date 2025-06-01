@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 public class InventoryTransaction {
     private int transactionID;
     private int productID;
+    private int batchID; // ID lô hàng được sử dụng
     private String transactionType; // import, export, reserve, release, adjust
     private int quantity;
     private Integer orderDetailID; // Có thể null
@@ -20,12 +21,13 @@ public class InventoryTransaction {
     }
 
     // Constructor đầy đủ
-    public InventoryTransaction(int transactionID, int productID, String transactionType,
+    public InventoryTransaction(int transactionID, int productID, int batchID, String transactionType,
                                 int quantity, Integer orderDetailID, String description,
                                 Integer createdBy, Timestamp createdAt, String productName,
                                 String createdByName) {
         this.transactionID = transactionID;
         this.productID = productID;
+        this.batchID = batchID;
         this.transactionType = transactionType;
         this.quantity = quantity;
         this.orderDetailID = orderDetailID;
@@ -37,33 +39,91 @@ public class InventoryTransaction {
     }
 
     // Getters and Setters
-    public int getTransactionID() { return transactionID; }
-    public void setTransactionID(int transactionID) { this.transactionID = transactionID; }
+    public int getTransactionID() {
+        return transactionID;
+    }
 
-    public int getProductID() { return productID; }
-    public void setProductID(int productID) { this.productID = productID; }
+    public void setTransactionID(int transactionID) {
+        this.transactionID = transactionID;
+    }
 
-    public String getTransactionType() { return transactionType; }
-    public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
+    public int getProductID() {
+        return productID;
+    }
 
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public void setProductID(int productID) {
+        this.productID = productID;
+    }
 
-    public Integer getOrderDetailID() { return orderDetailID; }
-    public void setOrderDetailID(Integer orderDetailID) { this.orderDetailID = orderDetailID; }
+    public int getBatchID() {
+        return batchID;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public void setBatchID(int batchID) {
+        this.batchID = batchID;
+    }
 
-    public Integer getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Integer createdBy) { this.createdBy = createdBy; }
+    public String getTransactionType() {
+        return transactionType;
+    }
 
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
+    }
 
-    public String getProductName() { return productName; }
-    public void setProductName(String productName) { this.productName = productName; }
+    public int getQuantity() {
+        return quantity;
+    }
 
-    public String getCreatedByName() { return createdByName; }
-    public void setCreatedByName(String createdByName) { this.createdByName = createdByName; }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public Integer getOrderDetailID() {
+        return orderDetailID;
+    }
+
+    public void setOrderDetailID(Integer orderDetailID) {
+        this.orderDetailID = orderDetailID;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Integer createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getCreatedByName() {
+        return createdByName;
+    }
+
+    public void setCreatedByName(String createdByName) {
+        this.createdByName = createdByName;
+    }
 }

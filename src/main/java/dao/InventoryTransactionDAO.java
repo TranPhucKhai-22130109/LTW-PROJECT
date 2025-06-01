@@ -12,12 +12,12 @@ public class InventoryTransactionDAO {
     public List<InventoryTransaction> getAllTransactions() {
         return JDBIContext.getJdbi().withHandle(handle ->
                 handle.createQuery("""
-                        SELECT t.*, p.productName, u.username AS createdByName
-                        FROM inventory_transactions t
-                        JOIN products p ON t.productID = p.productID
-                        LEFT JOIN users u ON t.createdBy = u.userID
-                        ORDER BY t.createdAt DESC
-                        """)
+                                SELECT t.*, p.productName, u.username AS createdByName
+                                FROM inventory_transactions t
+                                JOIN products p ON t.productID = p.productID
+                                LEFT JOIN users u ON t.createdBy = u.userID
+                                ORDER BY t.createdAt DESC
+                                """)
                         .mapToBean(InventoryTransaction.class)
                         .list()
         );
@@ -27,13 +27,27 @@ public class InventoryTransactionDAO {
     public Optional<InventoryTransaction> getTransactionByID(int transactionID) {
         return JDBIContext.getJdbi().withHandle(handle ->
                 handle.createQuery("""
-                        SELECT t.*, p.productName, u.username AS createdByName
-                        FROM inventory_transactions t
-                        JOIN products p ON t.productID = p.productID
-                        LEFT JOIN users u ON t.createdBy = u.userID
-                        WHERE t.transactionID = :transactionID
-                        """)
+                                SELECT t.*, p.productName, u.username AS createdByName
+                                FROM inventory_transactions t
+                                JOIN products p ON t.productID = p.productID
+                                LEFT JOIN users u ON t.createdBy = u.userID
+                                WHERE t.transactionID = :transactionID
+                                """)
                         .bind("transactionID", transactionID)
+                        .mapToBean(InventoryTransaction.class)
+                        .findOne()
+        );
+    }
+
+    // Lấy transaction theo id lô
+    public Optional<InventoryTransaction> getTransactionByBatchID(String batchID) {
+        return JDBIContext.getJdbi().withHandle(handle ->
+                handle.createQuery("""
+                                 SELECT *
+                                FROM inventory_transactions t
+                                 WHERE t.batchID = :batchID
+                                """)
+                        .bind("batchID", batchID)
                         .mapToBean(InventoryTransaction.class)
                         .findOne()
         );
@@ -43,10 +57,11 @@ public class InventoryTransactionDAO {
     public boolean addTransaction(InventoryTransaction transaction) {
         int rowsAffected = JDBIContext.getJdbi().withHandle(handle ->
                 handle.createUpdate("""
-                        INSERT INTO inventory_transactions (productID, transactionType, quantity, orderDetailID, description, createdBy)
-                        VALUES (:productID, :transactionType, :quantity, :orderDetailID, :description, :createdBy)
-                        """)
+                                INSERT INTO inventory_transactions (productID, batchID, transactionType, quantity, orderDetailID, description, createdBy)
+                                VALUES (:productID, :batchID, :transactionType, :quantity, :orderDetailID, :description, :createdBy)
+                                """)
                         .bind("productID", transaction.getProductID())
+                        .bind("batchID", transaction.getBatchID())
                         .bind("transactionType", transaction.getTransactionType())
                         .bind("quantity", transaction.getQuantity())
                         .bind("orderDetailID", transaction.getOrderDetailID())
@@ -57,15 +72,15 @@ public class InventoryTransactionDAO {
         return rowsAffected > 0;
     }
 
-    // Cập nhật giao dịch
+    // Cập nhật giao dịch (CẦN XEM LẠI)
     public boolean updateTransaction(InventoryTransaction transaction) {
         int rowsAffected = JDBIContext.getJdbi().withHandle(handle ->
                 handle.createUpdate("""
-                        UPDATE inventory_transactions
-                        SET productID = :productID, transactionType = :transactionType, quantity = :quantity,
-                            orderDetailID = :orderDetailID, description = :description, createdBy = :createdBy
-                        WHERE transactionID = :transactionID
-                        """)
+                                UPDATE inventory_transactions
+                                SET productID = :productID, transactionType = :transactionType, quantity = :quantity,
+                                    orderDetailID = :orderDetailID, description = :description, createdBy = :createdBy
+                                WHERE transactionID = :transactionID
+                                """)
                         .bind("transactionID", transaction.getTransactionID())
                         .bind("productID", transaction.getProductID())
                         .bind("transactionType", transaction.getTransactionType())
@@ -78,13 +93,4 @@ public class InventoryTransactionDAO {
         return rowsAffected > 0;
     }
 
-    // Xóa giao dịch
-    public boolean deleteTransaction(int transactionID) {
-        int rowsAffected = JDBIContext.getJdbi().withHandle(handle ->
-                handle.createUpdate("DELETE FROM inventory_transactions WHERE transactionID = :transactionID")
-                        .bind("transactionID", transactionID)
-                        .execute()
-        );
-        return rowsAffected > 0;
-    }
 }
