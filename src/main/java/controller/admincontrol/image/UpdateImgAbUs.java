@@ -4,6 +4,7 @@ import dao.AboutUsPicDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 
@@ -24,13 +25,29 @@ public class UpdateImgAbUs extends HttpServlet {
         if ("1".equals(choice)) {
             request.setAttribute("nameImg", nameImg);
             request.setAttribute("target", target);
-            request.getRequestDispatcher("editImg.jsp").forward(request,response);
+            request.getRequestDispatcher("editImg.jsp").forward(request, response);
         } else {
             // lấy thông tin để edit
             AboutUsPicDAO dao = new AboutUsPicDAO();
             dao.updateImg(target, nameImg);
             response.sendRedirect("all-aboutUs");
         }
+        // Lấy thông tin admin từ session
+        HttpSession session = request.getSession(false);
+        Object user = (session != null) ? session.getAttribute("customer") : null;
+        int customerID = -1;
+        if (user instanceof entity.Customer customer) {
+            customerID = customer.getId();
+        }
+
+// Ghi log
+        LogUtil.info(
+                "UPDATE_ABOUTUS_IMAGE",
+                "Cập nhật ảnh About Us với target: " + target + ", tên ảnh mới: " + nameImg,
+                customerID,
+                1, // role admin
+                request.getRemoteAddr()
+        );
 
 
     }

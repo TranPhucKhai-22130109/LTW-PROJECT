@@ -4,6 +4,7 @@ import dao.HomePictureDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 
@@ -29,7 +30,23 @@ public class UpdateHomeImg extends HttpServlet {
             HomePictureDAO dao = new HomePictureDAO();
             dao.updateImg(target,value);
             response.sendRedirect("all-homePic");
-
         }
+        // Lấy thông tin admin từ session
+        HttpSession session = request.getSession(false);
+        Object user = (session != null) ? session.getAttribute("customer") : null;
+        int customerID = -1;
+        if (user instanceof entity.Customer customer) {
+            customerID = customer.getId();
+        }
+
+// Ghi log
+        LogUtil.info(
+                "UPDATE_HOME_IMAGE",
+                "Cập nhật ảnh trang chủ cho target: " + target + ", giá trị mới: " + value,
+                customerID,
+                1, // role admin
+                request.getRemoteAddr()
+        );
+
     }
 }
