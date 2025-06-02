@@ -8,7 +8,8 @@ package controller.admincontrol.vnpay;
 import entity.Cart;
 import jakarta.servlet.annotation.WebServlet;
 
-import java.io.IOException;import java.net.URLEncoder;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +25,6 @@ import jakarta.servlet.http.HttpSession;
 public class CreateVnpayOrderServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
-        Cart cart = (Cart) session.getAttribute("cart");
 
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
@@ -40,8 +40,13 @@ public class CreateVnpayOrderServlet extends HttpServlet {
         String phone = request.getParameter("numberPhone");
         String address = request.getParameter("addressShipping");
         String amountStr = request.getParameter("amount");
-        String priceDiscountStr = request.getParameter("priceDiscount");
+        String priceDiscountStr = request.getParameter("finalPrice");
         String paymentMethod = request.getParameter("payment");
+        String prePrice = request.getParameter("prePrice");
+        String province = request.getParameter("province");
+        String ward = request.getParameter("ward");
+        String district= request.getParameter("district");
+
 
         long amount = (long) Double.parseDouble(priceDiscountStr.equals("noV") ? amountStr : priceDiscountStr);
 
@@ -49,14 +54,20 @@ public class CreateVnpayOrderServlet extends HttpServlet {
         String vnp_ReturnUrl = "https://localhost:8088/Project-LTW/vnpay-return";
 
         // Lưu thông tin order vào session
-        session.setAttribute("OrderID", OrderID);
         session.setAttribute("name", name);
         session.setAttribute("email", email);
         session.setAttribute("phone", phone);
-        session.setAttribute("address", address);
+        session.setAttribute("addressShipping", address);
         session.setAttribute("amount", amount);
         session.setAttribute("paymentMethod", paymentMethod);
         session.setAttribute("vnp_ReturnUrl", vnp_ReturnUrl);
+        session.setAttribute("prePrice", prePrice);
+        session.setAttribute("vnp_Amount", String.valueOf(amount * 100));
+        session.setAttribute("province", province);
+        session.setAttribute("ward", ward);
+        session.setAttribute("district", district);
+
+        // tổng giá cho đơn hàng
 
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", vnp_Version);

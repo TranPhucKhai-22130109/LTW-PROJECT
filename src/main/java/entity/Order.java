@@ -12,8 +12,10 @@ public class Order implements Serializable {
     private int couponID;
     private Date date;
     private String address;
+    private String oder_code_ghn;
 
-    public Order(int orderID, int cusID, double totalPrice, String status, int quantity, int couponID, Date date, String address) {
+    public Order(int orderID, int cusID, double totalPrice, String status, int quantity, int couponID, Date date,
+                 String address,String oder_code_ghn) {
         this.orderID = orderID;
         this.cusID = cusID;
         this.totalPrice = totalPrice;
@@ -22,6 +24,7 @@ public class Order implements Serializable {
         this.couponID = couponID;
         this.date = date;
         this.address = address;
+        this.oder_code_ghn = oder_code_ghn;
     }
 
     public Order() {
@@ -92,6 +95,15 @@ public class Order implements Serializable {
         this.date = date;
     }
 
+
+    public String getOder_code_ghn() {
+        return oder_code_ghn;
+    }
+
+    public void setOder_code_ghn(String oder_code_ghn) {
+        this.oder_code_ghn = oder_code_ghn;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
@@ -101,6 +113,9 @@ public class Order implements Serializable {
                 ", status='" + status + '\'' +
                 ", quantity=" + quantity +
                 ", couponID=" + couponID +
+                ", date=" + date +
+                ", address='" + address + '\'' +
+                ", oder_code_ghn='" + oder_code_ghn + '\'' +
                 '}';
     }
 }

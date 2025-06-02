@@ -67,7 +67,6 @@
                         </div>
                     </div>
 
-
                     <div class="address-section">
                         <h2 class="title-section">Số địa chỉ</h2>
                         <div class="address-box">
@@ -108,13 +107,11 @@
                                             <h4>${o.quantity}</h4>
                                         </div>
 
-
                                         <div>
                                             <h4>Tổng tiền: </h4>
                                             <h4>
                                                 <f:setLocale value="vi_VN"/>
                                                 <f:formatNumber value="  ${o.totalPrice}" type="currency"/>
-
                                             </h4>
                                         </div>
 
@@ -133,23 +130,28 @@
                                         </div>
                                         <div>
                                             <a style="color: #000;text-decoration: none"
-                                               href="load-detail-ord-cus?oID=${o.orderID}" class="detail-order">Xem chi
+                                               href="load-detail-ord-cus?oID=${o.orderID}&&odCode=${o.oder_code_ghn}"
+                                               class="detail-order">Xem chi
                                                 tiết</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: #000;text-decoration: none"
+                                               href="#"
+                                               onclick="cancelOrder('${o.oder_code_ghn}')"
+                                               class="detail-order">Hủy đơn hàng</a>
                                         </div>
                                     </div>
                                 </c:forEach>
-
                             </div>
                         </div>
-
                     </div>
-
-
                 </div>
             </div>
         </div>
     </main>
 </div>
+<%--Biến toàn cục--%>
+<script src="<%=request.getContextPath()%>/assets/js/GLOBAL_VAR.js"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -177,6 +179,36 @@
             });
         });
     });
+</script>
+
+<%--Fetch--%>
+<script>
+    async function cancelOrder(order_code) {
+
+        try {
+
+            // Lấy thông trạng thái đơn
+            let response = await fetch(`https://dev-online-gateway.ghn.vn/shiip/public-api/v2/switch-status/cancel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Token': token_api,
+                    'ShopID': shop_id,
+                },
+                body: JSON.stringify({
+                    'order_codes': [order_code]
+                })
+            });
+            let rs = await response.json();
+            if (rs.code === 200 && rs.message === 'Success') {
+                alert('Hủy đơn hàng thành công')
+                // xử lí cập nhật lại kho
+            }
+
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
 </script>
 </body>
 </html>

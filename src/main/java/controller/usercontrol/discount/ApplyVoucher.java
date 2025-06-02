@@ -24,13 +24,8 @@ public class ApplyVoucher extends HttpServlet {
         boolean isExits = couponDAO.isCouponExist(voucher);
         if (isExits) {
             Coupon coupon = couponDAO.getCouponByName(voucher);
-            HttpSession session = request.getSession(false);
-            Cart cart = (Cart) session.getAttribute("cart");
-
-            // truyen mã giảm giá vào để tính toán với tổng tiền của cart
-            cart.getTotal();
-            double priceAfterDiscount = cart.getTotal() - (cart.getTotal() * coupon.getDiscount());
-
+            double price = Double.parseDouble(request.getParameter("finalPrice"));
+            double priceAfterDiscount = price - (price * coupon.getDiscount());
 
             response.setContentType("application/json");
             response.getWriter().write("{\"finalPrice\":" + priceAfterDiscount + "}");
