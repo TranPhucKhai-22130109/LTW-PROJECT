@@ -31,7 +31,9 @@
         </div>
         <form action="create-order"
               method="post"
-              class="column shipping-info">
+              class="column shipping-info"
+              id="createOrder"
+        >
             <div class="info-shipping">
                 <!-- Phần Thông tin giao hàng -->
                 <h2>THÔNG TIN GIAO HÀNG</h2>
@@ -68,40 +70,40 @@
                         />
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="addressShipping">Địa chỉ giao hàng</label>
-                    <input type="text" name="addressShipping" id="addressShipping" placeholder="Số Nhà, Tên Đường"
-                           required="required" value="${customer.addressShipping}"/>
-                </div>
-                <div class="select-address d-none">
-                    <div class="form-group">
-                        <select id="city" aria-label=".form-select-sm">
-                            <option value="" selected>Chọn tỉnh thành</option>
-                            <!-- Thêm các tỉnh/thành phố khác -->
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <select id="district" aria-label=".form-select-sm">
-                            <option value="" selected>Chọn quận / huyện</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <select id="ward" aria-label=".form-select-sm">
-                            <option value="" selected>Chọn phường / xã</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="column payment-method">
 
+                <%-- Gọi api để lấy list quận, huyện --%>
+                <div class="form-group">
+
+                    <label for="province">Tỉnh / Thành phố</label>
+                    <select type="text" name="province" id="province"
+                            required="required">
+                        <option value="" disabled selected>Chọn tỉnh / thành phố</option>
+                    </select>
+
+                    <label for="district">Quận / huyện</label>
+                    <select type="text" name="district" id="district"
+                            required="required">
+                        <option value="" disabled selected>Chọn quận / huyện</option>
+                    </select>
+
+                    <label for="ward">Phường / Xã</label>
+                    <select type="text" name="ward" id="ward"
+                            required="required">
+                        <option value="" disabled selected>Chọn phường / xã</option>
+                    </select>
+
+                    <label for="addressShipping">Địa chỉ giao hàng cụ thể </label>
+                    <input type="text" name="addressShipping" id="addressShipping" placeholder="Số Nhà, Tên Đường"
+                           required="required" />
+                </div>
+
+                <%--         Order code GHN       --%>
+                <input type="hidden" name="oder_code_ghn" id="oder_code_ghn"
+                       value=""/>
+
+                <div class="column payment-method">
                     <!-- Phần Phương thức thanh toán -->
                     <h2>PHƯƠNG THỨC THANH TOÁN</h2>
-                    <div class="method">
-                        <input type="radio" id="atm" name="payment" value="ATM"/>
-                        <div class="icon-pay">
-                            <img src="assets/pic/ATM.png" alt="ATM icon"/>
-                        </div>
-                        <label for="atm"> Thanh toán thẻ (ATM, Visa) </label>
-                    </div>
                     <div class="method">
                         <input type="radio" id="VNPay" name="payment" value="VNPay"/>
                         <div class="icon-pay">
@@ -124,7 +126,7 @@
                 <table class="product-list">
                     <tbody class="body-list">
                     <c:forEach items="${sessionScope.cart.list}" var="cp">
-                        <tr class="product-item">
+                        <tr data-title="${cp.title}" data-quantity="${cp.quantity}" class="product-item">
                             <td class="item-img">
                                 <div class="pic-img">
                                     <img
@@ -132,7 +134,7 @@
                                             alt="Product Image"
                                             class="img-product"
                                     />
-                                    <span>${cp.quantity}</span>
+                                    <span class="quantity">${cp.quantity}</span>
                                 </div>
                                 <h2>${cp.title}</h2>
                             </td>
@@ -163,31 +165,22 @@
                         dụng</p></button>
 
                 </div>
+
                 <!-- Tổng tiền -->
                 <div class="provisional">
                     <div class="row">
                         <span>Tạm tính</span>
-                        <span class="priceDiscount">
-                     <% Cart c = (Cart) session.getAttribute("cart");%>
-                    <c:set var="balance" value="<%= c == null ? 0 : c.getTotal() %>"/>
-                         <f:setLocale value="vi_VN"/>
-                         <f:formatNumber value="${balance}" type="currency"/></span>
+                        <% Cart c = (Cart) session.getAttribute("cart");%>
+                        <input type="text" class="prePrice" name="prePrice" value="<%= c == null ? 0 : c.getTotal() %>" readonly>
                     </div>
                     <div class="row">
                         <span>Phí vận chuyển</span>
-                        <span>—</span>
+                        <input class="fee" value="" readonly>
                     </div>
                 </div>
                 <div class="total-section">
                     <span>Tổng cộng</span>
-                    <span class="priceDiscount">
-                        <c:set var="balance" value="<%= c == null ? 0 : c.getTotal() %>"/>
-                        <f:setLocale value="vi_VN"/>
-                        <f:formatNumber value="${balance}" type="currency"/>
-                    </span>
-
-                    <input type="hidden" name="amount" value="<%= c == null ? 0 : c.getTotal() %>">
-                    <input type="hidden" name="priceDiscount" value="noV">
+                    <input type="text" class="finalPrice" name="finalPrice" readonly>
                 </div>
 
             </div>
@@ -199,64 +192,38 @@
                 >Giỏ hàng</a
                 >
                 <button type="submit" class="btn-total">Hoàn tất đơn hàng</button>
+                <button
+                        onclick="createOrderGHN()"
+                        type="button" class="btn-total" style="background-color: #00B58D">Test API tạo đơn
+                </button>
             </div>
         </form>
     </div>
 
 </main>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script src="<%=request.getContextPath()%>/assets/js/GLOBAL_VAR.js"></script>
+
+<%--Tạo cart item để truyền vào param item--%>
 <script>
-    var citis = document.getElementById("city");
-    var districts = document.getElementById("district");
-    var wards = document.getElementById("ward");
-    var Parameter = {
-        url: "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json",
-        method: "GET",
-        responseType: "application/json",
-    };
-    var promise = axios(Parameter);
-    promise.then(function (result) {
-        renderCity(result.data);
+    const cartItems = [];
+    <c:forEach items="${sessionScope.cart.list}" var="cp">
+    cartItems.push({
+        name: "${cp.title}",
+        code: "${cp.productID}",
+        quantity: ${cp.quantity},
+        weight: 300
     });
+    </c:forEach>
 
-    function renderCity(data) {
-        for (const x of data) {
-            citis.options[citis.options.length] = new Option(x.Name, x.Id);
-        }
-        citis.onchange = function () {
-            district.length = 1;
-            ward.length = 1;
-            if (this.value != "") {
-                const result = data.filter((n) => n.Id === this.value);
 
-                for (const k of result[0].Districts) {
-                    district.options[district.options.length] = new Option(
-                        k.Name,
-                        k.Id
-                    );
-                }
-            }
-        };
-        district.onchange = function () {
-            ward.length = 1;
-            const dataCity = data.filter((n) => n.Id === citis.value);
-            if (this.value != "") {
-                const dataWards = dataCity[0].Districts.filter(
-                    (n) => n.Id === this.value
-                )[0].Wards;
-
-                for (const w of dataWards) {
-                    wards.options[wards.options.length] = new Option(w.Name, w.Id);
-                }
-            }
-        };
-    }
 </script>
+<%--=============== Tính cost ship <%--===============--%>
+<script src="<%=request.getContextPath()%>/assets/js/GHN.js"></script>
 
-<%--Bắt chọn pthuc thanh toán--%>
+<%--Chọn pthuc thanh toán--%>
 <script>
-    document.querySelector("form").addEventListener("submit", function (e) {
+    document.querySelector("form").addEventListener("submit", async function (e) {
         const selectedPayment = document.querySelector('input[name="payment"]:checked');
         if (!selectedPayment) {
             alert("Vui lòng chọn phương thức thanh toán.");
@@ -266,7 +233,7 @@
 
         // Chuyển hướng action nếu chọn VNPay
         if (selectedPayment.value === "VNPay") {
-            this.action = "create-vnpay-order"; // Servlet xử lý VNPay
+            this.action = "create-vnpay-order";
         } else {
             this.action = "create-order"; // Servlet xử lý COD/ATM
         }
@@ -278,17 +245,20 @@
 <script>
     $("#voucher-btn").on("click", function () {
         let data = $("#voucher").val()
+        let finalPrice = $("input[name='finalPrice']").val()
         console.log(data)
         $.ajax({
             url: "apply-voucher",
             method: "POST",
             data: {
-                "voucher": data
+                "voucher": data,
+                "finalPrice": finalPrice
             },
             success: function (response) {
                 console.log(response);
-                $("input[name='priceDiscount']").val(response.finalPrice)
-                $(".priceDiscount").text(formatCurrency(response.finalPrice));
+                $("input[name='finalPrice']").val(response.finalPrice)
+
+                // $(".prePrice").val(response.finalPrice);
 
                 function formatCurrency(value) {
                     return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(value);
@@ -296,7 +266,6 @@
             },
         })
     })
-
 </script>
 </body>
 </html>

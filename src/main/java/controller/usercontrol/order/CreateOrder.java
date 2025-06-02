@@ -31,17 +31,15 @@ public class CreateOrder extends HttpServlet {
         String payment = request.getParameter("payment");
         String statusOrder = "";
 
+        String oder_code_ghn = request.getParameter("oder_code_ghn");
 
         // lấy ra phương thức thanh toán
-        if ("ATM".equalsIgnoreCase(payment)) {
-            payment = "ATM, VISA";
-            statusOrder = "đã thanh toán";
-        } else if ("MoMo".equalsIgnoreCase(payment)) {
-            payment = "MOMO";
+        if ("VNPay".equalsIgnoreCase(payment)) {
+            payment = "VNPAY";
             statusOrder = "đã thanh toán";
         } else {
             payment = "COD";
-            statusOrder = "đang xử lí";
+            statusOrder = "chưa thanh toán";
         }
 
         customer.setName(name);
@@ -81,24 +79,19 @@ public class CreateOrder extends HttpServlet {
         }
         int total = cart.getTotalQuantity();
 
-        // lấy giá sau khi giảm nếu có
-        String priceDiscount = request.getParameter("priceDiscount");
-
-        // nếu áp được mã giảm giá
-        double totalPrice;
-
-        if (("noV").equals(priceDiscount)) {
-            totalPrice = cart.getTotal();
+        // lấy giá tổng đơn
+        double totalPrice = 0;
+        if (request.getParameter("vnp_Amount") != null) {
+            totalPrice = Double.parseDouble(request.getParameter("vnp_Amount"));
         } else {
-            totalPrice = Double.parseDouble(priceDiscount);
+            totalPrice = Double.parseDouble(request.getParameter("finalPrice"));
         }
 
-//        System.out.println("totalPrice: " + totalPrice);
         Date date = Date.valueOf(LocalDate.now());
 
         // tạo order mới
         OrderDAO ordDao = new OrderDAO();
-        int ordID = ordDao.createOrder(id, totalPrice, statusOrder, addressShipping, total, date);
+        int ordID = ordDao.createOrder(id, totalPrice, statusOrder, addressShipping, total, date, oder_code_ghn);
 
         // tạo trường cho bảng quá trình vận chuyển
         ShippingDAO shippingDAO = new ShippingDAO();

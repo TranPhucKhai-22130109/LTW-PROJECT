@@ -16,9 +16,12 @@ public class VnPayConfig {
 
     public static String vnp_ReturnUrl = "http://localhost:8080/Project-LTW/vnpay-return";
 
-    public static String vnp_TmnCode = "QUQKJ72Q";  // Đảm bảo mã này chính xác
-    public static String vnp_HashSecret = "0DBOHJ677YA5SBX53AKIHPK5SO45G7N7";  // Đảm bảo mã này chính xác
+//    public static String vnp_TmnCode = "QUQKJ72Q";  // Đảm bảo mã này chính xác
+//    public static String vnp_HashSecret = "0DBOHJ677YA5SBX53AKIHPK5SO45G7N7";  // Đảm bảo mã này chính xác
 
+
+    public static String vnp_TmnCode = "SJIQKDEI";  // Đảm bảo mã này chính xác
+    public static String vnp_HashSecret = "K5RUZCRKPE3YUIK8PBPVE5L58G12SNMA";
 
 //    public static String getRandomNumber(int length) {
 //        String chars = "0123456789";

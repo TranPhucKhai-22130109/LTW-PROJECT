@@ -71,7 +71,8 @@ html {
 }
 
 /* Form thông tin giao hàng */
-#checkout-container .shipping-info .form-group input {
+#checkout-container .shipping-info .form-group input,
+#checkout-container .shipping-info .form-group select {
     width: 100%;
     padding: 12px 10px;
     margin-bottom: 16px;
@@ -142,7 +143,7 @@ html {
     text-align: center;
 }
 
-#checkout-container .col-right-payment .finish .btn-total {
+.btn-total {
     /* width: 100%; */
     /* margin-top: 10px; */
     padding: 15px;
@@ -157,7 +158,7 @@ html {
     transition: background-color 0.3s, color 0.3s, border 0.3s;
 }
 
-#checkout-container .col-right-payment .finish .btn-total:hover {
+ .btn-total:hover {
     background-color: #fff;
     color: #000;
     border: 1px solid #000;
@@ -188,13 +189,7 @@ html {
     gap: 10px;
 }
 
-#checkout-container
-.order-summary
-.product-list
-.body-list
-.product-item
-.item-img
-.img-product {
+#checkout-container .order-summary .product-list .body-list .product-item .item-img .img-product {
     width: 80px;
     height: auto;
     border-radius: 8px;
@@ -251,7 +246,7 @@ h2 {
     border: 1px solid #000;
 }
 
-#checkout-container  .voucher-section .id-voucher {
+#checkout-container .voucher-section .id-voucher {
     border-radius: 5px;
     width: 72%;
     padding: 14px 10px;
@@ -259,11 +254,25 @@ h2 {
     background: #fff;
 }
 
+
+
 /*tạm tính*/
 #checkout-container .order-summary .provisional .row {
     display: flex;
     justify-content: space-between;
     color: #4b4b4b;
+}
+
+#checkout-container .order-summary .provisional input,
+#checkout-container .order-summary .total-section input{
+    background: inherit;
+    border: none;
+    font-size: 16px;
+}
+
+#checkout-container .order-summary .provisional input:focus-visible,
+#checkout-container .order-summary .total-section input:focus-visible{
+    outline: none;
 }
 
 #checkout-container .order-summary .provisional::after {
@@ -306,6 +315,6 @@ h2 {
     z-index: 2;
 }
 
-.d-none{
+.d-none {
     display: none !important;
 }
