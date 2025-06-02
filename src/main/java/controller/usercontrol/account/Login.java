@@ -16,6 +16,8 @@ import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
 import helper.MaHoaMK;
 import org.json.JSONObject;
+import util.LogUtil;
+
 
 @WebServlet(name = "LoginControl", value = "/login")
 public class Login extends HttpServlet {
@@ -86,6 +88,13 @@ public class Login extends HttpServlet {
                     }
                     session.setAttribute("cart", c);
                     response.sendRedirect("home");
+                    LogUtil.info(
+                            "LOGIN_SUCCESS",
+                            "User " + cus.getEmail() + " logged in successfully",
+                            cus.getId(),
+                            cus.getRole(),
+                            request.getRemoteAddr()
+                    );
                 } else {
                     // ========= SAVE CART DB ========= //
                     /*
@@ -106,7 +115,10 @@ public class Login extends HttpServlet {
         } else {
             request.setAttribute("error", "Chưa tích vào captcha");
             request.getRequestDispatcher("forms/login.jsp").forward(request, response);
+
+
         }
+
     }
 
     private boolean verifyRecaptcha(String gRecaptchaResponse) throws IOException {
@@ -129,5 +141,6 @@ public class Login extends HttpServlet {
         JSONObject json = new JSONObject(responseBody);
         return json.getBoolean("success");
     }
+
 
 }
