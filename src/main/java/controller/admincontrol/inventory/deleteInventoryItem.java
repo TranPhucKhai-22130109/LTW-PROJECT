@@ -4,6 +4,7 @@ import dao.InventoryDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 
@@ -22,14 +23,41 @@ public class deleteInventoryItem extends HttpServlet {
         if (success) {
             // Nếu xóa thành công, chuyển hướng về trang danh sách sản phẩm kho
             response.sendRedirect(request.getContextPath() + "/admin/list-warehouse");
+
         } else {
             // Nếu xóa thất bại, trả về thông báo lỗi
             response.setContentType("application/json");
             response.getWriter().write("{\"isSuccess\": false, \"msg\": \"Xóa thất bại\"}");
-
-            // Log thông tin để kiểm tra lý do thất bại
-            System.out.println("Failed to delete item with productID: " + productID);
         }
+        // Lấy thông tin admin từ session
+        HttpSession session = request.getSession(false);
+        Object user = (session != null) ? session.getAttribute("customer") : null;
+        int customerID = -1;
+        if (user instanceof entity.Customer customer) {
+            customerID = customer.getId();
+        }
+
+// Ghi log sau khi xóa thành công
+        if (success) {
+            LogUtil.info(
+                    "DELETE_INVENTORY_ITEM",
+                    "Xóa sản phẩm trong kho với productID: " + productID,
+                    customerID,
+                    1, // role admin
+                    request.getRemoteAddr()
+            );
+        } else {
+            // Log thất bại xóa chi tiết hơn (đã có System.out.println rồi)
+            LogUtil.error(
+                    "DELETE_INVENTORY_ITEM_FAILED",
+                    "Xóa sản phẩm trong kho thất bại với productID: " + productID,
+                    customerID,
+                    1,
+                    request.getRemoteAddr(),
+                    ""
+            );
+        }
+
     }
 
     @Override

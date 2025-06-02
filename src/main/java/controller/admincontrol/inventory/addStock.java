@@ -6,6 +6,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import util.LogUtil;
 
 import java.io.IOException;
 
@@ -38,6 +40,27 @@ public class addStock extends HttpServlet {
             // Xử lý và cập nhật vào cơ sở dữ liệu
             InventoryDAO dao = new InventoryDAO();
             boolean success = dao.addStock(productID, quantity, reorderLevel);
+
+            // Lấy thông tin admin từ session
+            HttpSession session = request.getSession(false);
+            Object user = (session != null) ? session.getAttribute("customer") : null;
+            int customerID = -1;
+            if (user instanceof entity.Customer customer) {
+                customerID = customer.getId();
+            }
+
+// Ghi log sau khi thêm kho thành công
+            if (success) {
+                LogUtil.info(
+                        "ADD_STOCK",
+                        "Nhập kho sản phẩm ID: " + productID + ", số lượng: " + quantity + ", mức reorder: " + reorderLevel,
+                        customerID,
+                        1, // role admin
+                        request.getRemoteAddr()
+                );
+            }
+
+
 
             // Trả về thông báo cho client
             if (success) {

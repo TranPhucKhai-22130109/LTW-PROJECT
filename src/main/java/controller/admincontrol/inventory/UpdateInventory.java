@@ -7,6 +7,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import util.LogUtil;
 
 import java.io.IOException;
 
@@ -31,6 +33,38 @@ public class UpdateInventory extends HttpServlet {
         // Gọi DAO để cập nhật cơ sở dữ liệu
         InventoryDAO inventoryDAO = new InventoryDAO();
         boolean success = inventoryDAO.updateInventory(updatedInventory);
+
+        // Lấy thông tin admin từ session
+        HttpSession session = request.getSession(false);
+        Object user = (session != null) ? session.getAttribute("customer") : null;
+        int customerID = -1;
+        if (user instanceof entity.Customer customer) {
+            customerID = customer.getId();
+        }
+
+        if (success) {
+            LogUtil.info(
+                    "UPDATE_INVENTORY",
+                    "Cập nhật tồn kho cho sản phẩm ID: " + productID
+                            + ", Tên sản phẩm: " + productName
+                            + ", Số lượng tồn: " + quantityInStock
+                            + ", Đã bán: " + quantitySold
+                            + ", Đã đặt: " + quantityReserved
+                            + ", Mức đặt hàng lại: " + reorderLevel,
+                    customerID,
+                    1, // role admin
+                    request.getRemoteAddr()
+            );
+        } else {
+            LogUtil.error(
+                    "UPDATE_INVENTORY_FAILED",
+                    "Cập nhật tồn kho thất bại cho sản phẩm ID: " + productID,
+                    customerID,
+                    1,
+                    request.getRemoteAddr(),""
+            );
+        }
+
 
         if (success) {
             // Trả về phản hồi JSON khi cập nhật thành công
