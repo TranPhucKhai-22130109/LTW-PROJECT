@@ -2,9 +2,11 @@ package controller.admincontrol.discount;
 
 import com.google.gson.JsonObject;
 import dao.DiscountDAO;
+import entity.Customer;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -29,6 +31,21 @@ public class AddDiscount extends HttpServlet {
             dao.addDiscount(type, discount, start, end);
             isSuccess = true;
         }
+
+        // Lấy thông tin user đăng nhập admin (không cần check null nếu chắc chắn có)
+        HttpSession session = request.getSession(false);
+        Customer customer = (Customer) session.getAttribute("customer");
+        int customerID = customer.getId();
+        int role = 1; // admin
+
+        // Ghi log thêm discount
+        LogUtil.info(
+                "ADD_DISCOUNT",
+                "Thêm mã giảm giá " + (isSuccess ? "thành công" : "thất bại"),
+                customerID,
+                role,
+                request.getRemoteAddr()
+        );
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("isSuccess", isSuccess);

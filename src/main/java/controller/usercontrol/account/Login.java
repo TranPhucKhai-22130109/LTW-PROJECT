@@ -75,6 +75,14 @@ public class Login extends HttpServlet {
                 HttpSession session = request.getSession();
                 session.setAttribute("customer", cus);
                 cus.setPass("");
+                //log đăng nhập
+                LogUtil.info(
+                        "LOGIN_SUCCESS",
+                        "User " + cus.getEmail() + " logged in successfully",
+                        cus.getId(),
+                        cus.getRole(),
+                        request.getRemoteAddr()
+                );
 
                 // LOAD USER CART || INSERT NEW CART
                 CartDAO cartDao = new CartDAO();
@@ -88,13 +96,7 @@ public class Login extends HttpServlet {
                     }
                     session.setAttribute("cart", c);
                     response.sendRedirect("home");
-                    LogUtil.info(
-                            "LOGIN_SUCCESS",
-                            "User " + cus.getEmail() + " logged in successfully",
-                            cus.getId(),
-                            cus.getRole(),
-                            request.getRemoteAddr()
-                    );
+
                 } else {
                     // ========= SAVE CART DB ========= //
                     /*

@@ -1,62 +1,94 @@
 package dao;
 
-
 import context.JDBIContext;
 import entity.Category;
-import entity.Coupon;
-
-
 import java.util.List;
 
 public class CategoryDAO {
 
-    // lấy hết danh mục
+    // Lấy hết danh mục
     public List<Category> getAllCate() {
-        return JDBIContext.getJdbi().withHandle(handle ->
-                (handle.createQuery("select * from categories Order by cateID DESC ").mapToBean(Category.class).list())
-        );
+        try {
+            return JDBIContext.getJdbi().withHandle(handle ->
+                    handle.createQuery("SELECT * FROM categories ORDER BY cateID DESC")
+                            .mapToBean(Category.class)
+                            .list()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error fetching all categories: " + e.getMessage());
+        }
     }
 
-    // thêm danh mục
+    // Thêm danh mục
     public int insertCate(Category category) {
-        return JDBIContext.getJdbi().withHandle(handle ->
-                (handle.createUpdate(" INSERT INTO categories (cateName,cateImg) VALUES ( :cateName, :cateImg)")
-                        .bind("cateName", category.getName())
-                        .bind("cateImg", category.getCateImg())
-                        .executeAndReturnGeneratedKeys("id") // Trả về khóa tự động tăng của cột `id`
-                        .mapTo(int.class) // Map giá trị `id` sang kiểu `int`
-                        .one()) // Lấy giá trị duy nhất (ID))
-        );
+        try {
+            if (category == null || category.getName() == null || category.getCateImg() == null) {
+                throw new IllegalArgumentException("Category or its fields cannot be null");
+            }
+            return JDBIContext.getJdbi().withHandle(handle ->
+                    handle.createUpdate("INSERT INTO categories (cateName, cateImg) VALUES (:cateName, :cateImg)")
+                            .bind("cateName", category.getName())
+                            .bind("cateImg", category.getCateImg())
+                            .executeAndReturnGeneratedKeys("id")
+                            .mapTo(int.class)
+                            .one()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error inserting category: " + e.getMessage());
+        }
     }
 
-    // xóa danh mục
+    // Xóa danh mục
     public int removeCate(String cID) {
-        return JDBIContext.getJdbi().withHandle(handle ->
-                (handle.createUpdate(" DELETE FROM categories WHERE  cateID =:cateID")
-                        .bind("cateID", cID)
-                        .execute())
-        );
+        try {
+            if (cID == null || cID.trim().isEmpty()) {
+                throw new IllegalArgumentException("Category ID cannot be null or empty");
+            }
+            return JDBIContext.getJdbi().withHandle(handle ->
+                    handle.createUpdate("DELETE FROM categories WHERE cateID = :cateID")
+                            .bind("cateID", cID)
+                            .execute()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error deleting category: " + e.getMessage());
+        }
     }
 
-    // lấy 1 category dựa vào ID
+    // Lấy 1 danh mục dựa vào ID
     public Category getCateByID(int cateID) {
-        return JDBIContext.getJdbi().withHandle(handle ->
-                handle.createQuery("select * from categories  where cateID = :cateID")
-                        .bind("cateID", cateID)
-                        .mapToBean(Category.class).findOne().orElse(null)
-        );
+        try {
+            return JDBIContext.getJdbi().withHandle(handle ->
+                    handle.createQuery("SELECT * FROM categories WHERE cateID = :cateID")
+                            .bind("cateID", cateID)
+                            .mapToBean(Category.class)
+                            .findOne()
+                            .orElse(null)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error fetching category by ID: " + e.getMessage());
+        }
     }
 
-    // cập nhật danh mục dựa vào ID
+    // Cập nhật danh mục dựa vào ID
     public int updateCate(int cateID, String cateName, String cateImg) {
-        return JDBIContext.getJdbi().withHandle(handle -> (
-                handle.createUpdate("Update categories  set cateName =:cateName, cateImg =:cateImg  where cateID =:cateID")
-                        .bind("cateID", cateID)
-                        .bind("cateName", cateName)
-                        .bind("cateImg", cateImg)
-                        .execute())
-        );
+        try {
+            if (cateName == null || cateImg == null) {
+                throw new IllegalArgumentException("Category name or image cannot be null");
+            }
+            return JDBIContext.getJdbi().withHandle(handle ->
+                    handle.createUpdate("UPDATE categories SET cateName = :cateName, cateImg = :cateImg WHERE cateID = :cateID")
+                            .bind("cateID", cateID)
+                            .bind("cateName", cateName)
+                            .bind("cateImg", cateImg)
+                            .execute()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error updating category: " + e.getMessage());
+        }
     }
-
-
 }

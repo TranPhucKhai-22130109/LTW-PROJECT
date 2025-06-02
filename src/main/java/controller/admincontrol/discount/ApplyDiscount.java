@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dao.DiscountDAO;
 import dao.ProductDAO;
+import entity.Customer;
 import entity.Discount;
 import entity.Product;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 
@@ -44,7 +46,22 @@ public class ApplyDiscount extends HttpServlet {
             }
             isSuccess = true;
         }
+        // Lấy thông tin user admin từ session (bắt buộc đăng nhập)
+        HttpSession session = request.getSession(false);
+        Customer customer = (Customer) session.getAttribute("customer");
+        int customerID = customer.getId();
+        int role = 1; // admin
 
+        // Ghi log
+        LogUtil.info(
+                "APPLY_DISCOUNT",
+                "Áp dụng mã giảm giá " + (isSuccess ? "thành công" : "thất bại") +
+                        " cho sản phẩm: " + (productIds != null ? String.join(",", productIds) : "null") +
+                        " với discountId=" + discountId,
+                customerID,
+                role,
+                request.getRemoteAddr()
+        );
 
         // Phản hồi về client
         JsonObject result = new JsonObject();

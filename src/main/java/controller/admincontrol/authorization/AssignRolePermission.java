@@ -3,10 +3,12 @@ package controller.admincontrol.authorization;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dao.AuthorizationDAO;
+import entity.Customer;
 import entity.authorization.Permission;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,6 +31,8 @@ public class AssignRolePermission extends HttpServlet {
 
         List<Permission> current = auth.getPermissionsByRole(Integer.parseInt(roleID));
 
+
+
         // Xóa những cái không còn trong selectedSet
         for (Permission oldPerm : current) {
             String permIDStr = String.valueOf(oldPerm.getPermissionID());
@@ -38,6 +42,17 @@ public class AssignRolePermission extends HttpServlet {
             }
         }
         boolean isSuccessAdd = auth.insertRolePermissions(roleID, permissionID);
+
+        // Ghi log: Ai đã phân quyền gì cho role nào
+        HttpSession session = request.getSession(false);
+        Customer admin = (Customer) session.getAttribute("customer");
+
+        if (admin != null) {
+            String status = (isSuccessAdd || isSuccessDelete) ? "SUCCESS" : "FAILED";
+            String msg = "Admin " + admin.getEmail() + " đã cập nhật quyền cho roleID = " + roleID
+                    + ", thêm quyền: " + Arrays.toString(permissionID);
+            LogUtil.warn("ASSIGN_ROLE_PERMISSION_" + status, msg, admin.getId(), admin.getRole(), request.getRemoteAddr());
+        }
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("isSuccessAdd", isSuccessAdd);

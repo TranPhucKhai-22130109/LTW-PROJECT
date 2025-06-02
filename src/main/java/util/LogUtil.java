@@ -41,6 +41,12 @@ public class LogUtil {
         log("ERROR", action, message, customerID, role, ip, extra);
     }
 
+    public static void dangerous(String action, String message, Integer customerID, int role, String ip, String extra) {
+        log("DANGEROUS", action, message, customerID, role, ip, extra);
+
+    }
+
+
     public static void debug(String action, String message, Integer customerID, int role, String ip) {
         log("DEBUG", action, message, customerID, role, ip, null);
     }

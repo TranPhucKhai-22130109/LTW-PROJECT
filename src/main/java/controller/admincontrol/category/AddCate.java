@@ -8,6 +8,8 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
 
+
+import util.LogUtil;
 import java.io.IOException;
 
 @WebServlet(name = "AddCateController", value = "/add-newCate")
@@ -37,7 +39,22 @@ public class AddCate extends HttpServlet {
             cID = categoryDAO.insertCate(category);
             if (cID > 0) {
                 isSuccess = true;
+                // Ghi log thao tác thêm category
+                HttpSession session = request.getSession(false);
+                Object user = session != null ? session.getAttribute("customer") : null;
+                Integer customerID = null;
+                int role = 1; // giả định admin = 1
+                if (user instanceof entity.Customer customer) {
+                    customerID = customer.getId();
+                }
+                String ip = request.getRemoteAddr();
+
+                String action = "ADD_CATEGORY";
+                String message = "Thêm mới category với ID: " + cID + ", tên: " + category.getName();
+
+                LogUtil.info(action, message, customerID, role, ip);
             }
+
         }
 
         JsonObject jsonObject = new JsonObject();

@@ -10,6 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -43,6 +44,31 @@ public class AddBatchController extends HttpServlet {
 
         // Call addBatch function
         boolean isSuccess = new BatchDAO().addBatch(batch);
+
+
+        // Ghi log: thêm một batch mới
+        HttpSession session = request.getSession(false);
+        Object user = session != null ? session.getAttribute("customer") : null;
+        Integer customerID = null;
+        int role = 1; // Admin mặc định
+        if (user instanceof entity.Customer customer) {
+            customerID = customer.getId();
+        }
+        String ip = request.getRemoteAddr();
+
+        util.LogUtil.info(
+                "ADD_BATCH_MANUAL",
+                "Thêm batch thủ công. Số lô: " + batch.getBatchNumber()
+                        + ", Sản phẩm ID: " + batch.getProductID()
+                        + ", Số lượng: " + batch.getQuantity()
+                        + ", Giá: " + batch.getPrice()
+                        + ", Nhà cung cấp ID: " + batch.getSupplierID()
+                        + ", Thành công: " + isSuccess,
+                customerID,
+                role,
+                ip
+        );
+
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("isSuccess", isSuccess);
