@@ -29,17 +29,15 @@ public class CreateOrder extends HttpServlet {
         String addressShipping = request.getParameter("addressShipping");
 
         String payment = request.getParameter("payment");
-        String statusOrder = "";
+        String statusOrder = "ready_to_pick";
 
         String oder_code_ghn = request.getParameter("oder_code_ghn");
 
         // lấy ra phương thức thanh toán
         if ("VNPay".equalsIgnoreCase(payment)) {
             payment = "VNPAY";
-            statusOrder = "đã thanh toán";
         } else {
             payment = "COD";
-            statusOrder = "chưa thanh toán";
         }
 
         customer.setName(name);
@@ -53,30 +51,9 @@ public class CreateOrder extends HttpServlet {
         session.setAttribute("customer", customer);
         int id = customer.getId();
 
-        // giỏ hàng
-        // Cập nhật số lượng sp trong kho
-        ProductDAO pDao = new ProductDAO();
-        InventoryDAO inventoryDao = new InventoryDAO();
-        int productStock;
-
-        int order;
-        int cartId;
-
         Cart cart = (Cart) session.getAttribute("cart");
-        for (CartItem cartItem : cart.getList()) {
-            System.out.println(cartItem);
-            cartId = cartItem.getProductID();
 
-            // kiểm tra xem slg hàng ng dùng mua có nhỏ hơn slg tồn kho không
-            productStock = inventoryDao.getInventoryByProductID(cartId + "").getQuantityInStock();
-            order = cartItem.getQuantity();
-
-            if (order >= productStock) {
-                request.setAttribute("error", "Sản phẩm đã hết hàng hoặc vượt quá số lượng tồn kho");
-                request.getRequestDispatcher("check-out.jsp").forward(request, response);
-                return;
-            }
-        }
+        // lấy tổng slg đơn
         int total = cart.getTotalQuantity();
 
         // lấy giá tổng đơn
