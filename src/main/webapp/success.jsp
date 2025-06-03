@@ -173,8 +173,6 @@
 </div>
 
 
-<%--Biến toàn cục--%>
-<script src="<%=request.getContextPath()%>/assets/js/GLOBAL_VAR.js"></script>
 
 <%--Set item--%>
 <script>
@@ -253,7 +251,7 @@
 
     async function init() {
         await getProvinceDistrictWardNames('${sessionScope.province}', '${sessionScope.district}', '${sessionScope.ward}');
-        await createOrderGHN();
+        await createOrderGHN('${sessionScope.customer.name}','${sessionScope.customer.phone}');
     }
 
     init(); // gọi khi trang khởi tạo

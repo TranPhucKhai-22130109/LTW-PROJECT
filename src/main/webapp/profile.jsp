@@ -132,12 +132,24 @@
                                                 tiết</a>
                                         </div>
 
-                                        <div>
-                                            <a style="color: #000;text-decoration: none"
-                                               href="#"
-                                               onclick="cancelOrder('${o.oder_code_ghn}','${o.orderID}')"
-                                               class="detail-order">Hủy đơn hàng</a>
-                                        </div>
+                                        <c:if test="${o.status != 'cancel'}">
+                                            <div>
+                                                <a style="color: #000;text-decoration: none"
+                                                   href="#"
+                                                   onclick="cancelOrder('${o.oder_code_ghn}','${o.orderID}')"
+                                                   class="detail-order">Hủy đơn hàng</a>
+                                            </div>
+                                        </c:if>
+
+                                        <c:if test="${o.status == 'delivery_fail'}">
+                                            <div>
+                                                <a style="color: #000;text-decoration: none"
+                                                   href="#"
+                                                   onclick="returnOrder('${o.oder_code_ghn}')"
+                                                   class="detail-order">Hoàn hàng</a>
+                                            </div>
+                                        </c:if>
+
                                         <form data-id="${o.orderID}" style="display: none" method="post"
                                               action="admin/cancel-order" id="cancel-order">
                                             <input name="order_id" value="${o.orderID}">
@@ -186,8 +198,9 @@
     });
 </script>
 
-<%--Hủy đơn--%>
+
 <script>
+    <%-- Hủy đơn--%>
     async function cancelOrder(order_code_ghn, orderID) {
         const confirmed = confirm('Bạn có muốn hủy đơn?');
         if (!confirmed) return;
@@ -211,6 +224,34 @@
                 // xử lí cập nhật lại kho khi hủy đơn
                 document.querySelector("form[data-id='" + orderID + "']").submit();
 
+            }
+
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
+
+    <%-- Hoàn đơn--%>
+    async function returnOrder(order_code_ghn) {
+        const confirmed = confirm('Bạn có muốn hoàn đơn?');
+        if (!confirmed) return;
+
+        try {
+            // Hủy đơn
+            let response = await fetch(`https://dev-online-gateway.ghn.vn/shiip/public-api/v2/switch-status/return`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Token': token_api,
+                    'ShopID': shop_id,
+                },
+                body: JSON.stringify({
+                    'order_codes': [order_code_ghn]
+                })
+            });
+            let rs = await response.json();
+            if (rs.code === 200 && rs.message === 'Success') {
+                console.log('hoàn hàng thành công')
             }
 
         } catch (error) {
