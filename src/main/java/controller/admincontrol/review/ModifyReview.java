@@ -1,9 +1,11 @@
 package controller.admincontrol.review;
 
 import dao.ReviewDAO;
+import entity.Customer;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 
@@ -23,6 +25,23 @@ public class ModifyReview extends HttpServlet {
             case -1 -> remove(rID);
             default -> false;
         };
+
+        // Ghi log nếu thành công
+        if (isSuccess) {
+            HttpSession session = request.getSession(false);
+            Object obj = (session != null) ? session.getAttribute("customer") : null;
+            int userID = (obj instanceof Customer customer) ? customer.getId() : -1;
+
+            String action = switch (choice) {
+                case 0 -> "Ẩn đánh giá";
+                case 1 -> "Duyệt đánh giá";
+                case -1 -> "Xóa đánh giá";
+                default -> "Không xác định";
+            };
+
+            LogUtil.info("MODIFY_REVIEW", action + " (Review ID = " + rID + ")", userID, 1, request.getRemoteAddr());
+        }
+
 
         response.setContentType("application/json");
         response.getWriter().write("{\"isSuccess\":" + isSuccess + ", \"choose\":" + choice + "}");
