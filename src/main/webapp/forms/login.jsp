@@ -70,7 +70,7 @@
                 >
 
                 <!-- Google reCAPTCHA -->
-                <div class="g-recaptcha" data-sitekey="6LdjZ_wqAAAAAF5P3or0nPOS_jw9YXaEcnic3kQg"></div>
+<%--                <div class="g-recaptcha" data-sitekey="6LdjZ_wqAAAAAF5P3or0nPOS_jw9YXaEcnic3kQg"></div>--%>
 
                 <button type="submit">Login</button>
             </form>

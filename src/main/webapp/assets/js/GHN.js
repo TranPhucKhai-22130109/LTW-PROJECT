@@ -197,7 +197,7 @@ async function calculateShip() {
 }
 
 // Tạo đơn (GHN)
-async function createOrderGHN(rs) {
+async function createOrderGHN() {
     let url = 'https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/create'
     let insurance_value = document.querySelector(".prePrice").value
 
@@ -205,6 +205,11 @@ async function createOrderGHN(rs) {
     let to_province_name = document.getElementById('province').selectedOptions[0].textContent;
     let to_district_name = document.getElementById('district').selectedOptions[0].textContent;
     let to_ward_name = document.getElementById('ward').selectedOptions[0].textContent;
+
+    // lấy tên, sdt, ship
+    let nameCus = document.querySelector('input[name="name"]').value;
+    let phoneCus = document.querySelector('input[name="numberPhone"]').value;
+    let addressCus = document.querySelector('input[name="addressShipping"]').value;
 
 
     // lấy phương thức thanh toán
@@ -225,9 +230,9 @@ async function createOrderGHN(rs) {
         payment_type_id: parseInt(payment_type_id), // VNpay = 1
         note: "",
         required_note: "KHONGCHOXEMHANG",
-        to_name: "KH Test1", // lấy từ session.customer.name
-        to_phone: "0987654321", // lấy từ session.customer.phone
-        to_address: `TEST, ${to_ward_name}, ${to_district_name},${to_province_name}, Vietnam`, // lấy từ session.customer.phone
+        to_name: nameCus,
+        to_phone: phoneCus,
+        to_address: addressCus,
         to_ward_name: to_ward_name,
         to_district_name: to_district_name,
         to_province_name: to_province_name,
@@ -243,8 +248,6 @@ async function createOrderGHN(rs) {
         items: cartItems
     };
 
-    // console.log(raw_data)
-    // return;
 
     // Fetch
     try {

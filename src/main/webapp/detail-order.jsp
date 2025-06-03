@@ -115,6 +115,7 @@
                                             <%--    <li>Tạm tính: <span> <f:setLocale value="vi_VN"/>--%>
                                             <%--   <f:formatNumber value=" ${order.totalPrice}" type="currency"/></span></li>--%>
 
+                                            <li>Tổng tiền hàng: <span class="preTotal"></span></li>
                                             <li>Phí giao hàng: <span class="fee"></span></li>
                                             <li><strong>Tổng tiền:</strong>
                                                 <span><strong>

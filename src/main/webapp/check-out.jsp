@@ -198,18 +198,18 @@
                 <%--                        type="button" class="btn-total" style="background-color: #00B58D">Test API tạo đơn--%>
                 <%--                </button>--%>
 
-                <button type="button" class="btn-total" onclick="handleSubmit()">Hoàn tất đơn hàng</button>
+                <button type="button" class="btn-total" onclick="handleSubmit()">Hoàn tất đơn hàng
+                </button>
 
             </div>
         </form>
     </div>
 
 </main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-<script src="<%=request.getContextPath()%>/assets/js/GLOBAL_VAR.js"></script>
 
-<%-- Tạo cart item để truyền vào param item--%>
+<script src="<%=request.getContextPath()%>/assets/js/GHN.js"></script>
 <script>
+    <%-- Tạo cart item để truyền vào param item    --%>
     const cartItems = [];
     <c:forEach items="${sessionScope.cart.list}" var="cp">
     cartItems.push({
@@ -220,14 +220,8 @@
     });
     </c:forEach>
 
+    <%-- Chọn pthuc thanh toán--%>
 
-</script>
-
-<%-- Tính cost ship --%>
-<script src="<%=request.getContextPath()%>/assets/js/GHN.js"></script>
-
-<%-- Chọn pthuc thanh toán--%>
-<script>
     function handleSubmit() {
         const selectedPayment = document.querySelector('input[name="payment"]:checked');
         if (!selectedPayment) {
@@ -246,10 +240,7 @@
         }
     }
 
-</script>
-
-<%-- Áp mã giảm giá--%>
-<script>
+    <%-- Áp mã giảm giá--%>
     $("#voucher-btn").on("click", function () {
         let data = $("#voucher").val()
         let finalPrice = $("input[name='finalPrice']").val()
@@ -274,6 +265,7 @@
         })
     })
 </script>
+
 </body>
 </html>
 
