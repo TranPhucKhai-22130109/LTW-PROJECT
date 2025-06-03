@@ -1,10 +1,12 @@
 package controller.admincontrol.product;
 
 import dao.ProductDAO;
+import entity.Customer;
 import entity.SubImgProduct;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -38,6 +40,23 @@ public class UpdateSubImg extends HttpServlet {
                 }
 
                 System.out.println(subImgProduct);
+
+                // Ghi log trước khi cập nhật
+                HttpSession session = request.getSession(false);
+                Object user = (session != null) ? session.getAttribute("customer") : null;
+                int customerID = -1;
+                if (user instanceof Customer customer) {
+                    customerID = customer.getId();
+                }
+
+                LogUtil.info(
+                        "UPDATE_SUB_IMAGE",
+                        "Cập nhật ảnh phụ cho sản phẩm ID = " + subImgProduct.getProductID(),
+                        customerID,
+                        1, // role admin
+                        request.getRemoteAddr()
+                );
+
 
                 // cập nhật
                 ProductDAO productDAO = new ProductDAO();

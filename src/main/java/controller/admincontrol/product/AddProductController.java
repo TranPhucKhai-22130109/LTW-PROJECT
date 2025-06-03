@@ -7,6 +7,7 @@ import entity.SubImgProduct;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -31,6 +32,13 @@ public class AddProductController extends HttpServlet {
         String shortDes = request.getParameter("shortDes");
         String productImage = request.getParameter("productImage");
 
+        // Lấy admin từ session
+        HttpSession session = request.getSession(false);
+        Object user = (session != null) ? session.getAttribute("customer") : null;
+        int customerID = -1;
+        if (user instanceof entity.Customer customer) {
+            customerID = customer.getId();
+        }
 
         ProductDAO productDAO = new ProductDAO();
         InventoryDAO inventoryDAO = new InventoryDAO();
@@ -69,6 +77,15 @@ public class AddProductController extends HttpServlet {
             productDAO.insertSubImg(result, subImgProduct);
 
         }
+
+        // Ghi log thêm sản phẩm
+        LogUtil.info(
+                "ADD_PRODUCT",
+                "Thêm sản phẩm mới: Tên = " + productName + ", Giá = " + productPrice + ", CateID = " + cateID,
+                customerID,
+                1, // role admin
+                request.getRemoteAddr()
+        );
 
         // tạo kho cho sản
 

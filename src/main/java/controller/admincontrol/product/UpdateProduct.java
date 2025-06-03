@@ -5,6 +5,7 @@ import entity.Product;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 
@@ -52,6 +53,23 @@ public class UpdateProduct extends HttpServlet {
             request.getRequestDispatcher("EditProduct.jsp").forward(request, response);
             return;
         }
+
+        // Lấy thông tin customer từ session
+        HttpSession session = request.getSession(false);
+        Object user = (session != null) ? session.getAttribute("customer") : null;
+        int customerID = -1;
+        if (user instanceof entity.Customer customer) {
+            customerID = customer.getId();
+        }
+
+        // Ghi log trước khi cập nhật
+        LogUtil.info(
+                "UPDATE_PRODUCT",
+                "Cập nhật sản phẩm có ID = " + productID,
+                customerID,
+                1, // role admin
+                request.getRemoteAddr()
+        );
 
         Product product = productDAO.getProductByID(productID);
         product.setProductName(productName);
