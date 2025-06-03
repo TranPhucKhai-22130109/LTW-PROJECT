@@ -6,6 +6,7 @@ import entity.Manufacturer;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,6 +32,37 @@ public class AddManufacturer extends HttpServlet {
 
             ManufacturerDAO dao = new ManufacturerDAO();
             int row = dao.addManufacturer(m);
+
+            // Lấy thông tin admin từ session
+            HttpSession session = request.getSession(false);
+            Object user = (session != null) ? session.getAttribute("customer") : null;
+            int customerID = -1;
+            if (user instanceof entity.Customer customer) {
+                customerID = customer.getId();
+            }
+
+// Ghi log
+            if (row > 0) {
+                LogUtil.info(
+                        "ADD_MANUFACTURER",
+                        "Thêm nhà sản xuất mới: Tên = " + manuName
+                                + ", Xuất xứ = " + brandOrigin
+                                + ", Nơi sản xuất = " + manufactureLocation,
+                        customerID,
+                        1, // role admin
+                        request.getRemoteAddr()
+                );
+            } else {
+                LogUtil.error(
+                        "ADD_MANUFACTURER_FAILED",
+                        "Thêm nhà sản xuất thất bại: Tên = " + manuName,
+                        customerID,
+                        1,
+                        request.getRemoteAddr(),
+                        ""
+                );
+            }
+
 
             json.addProperty("isSuccess", row > 0);
             if (row <= 0) {

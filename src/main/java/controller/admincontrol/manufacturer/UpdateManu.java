@@ -7,6 +7,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import util.LogUtil;
 
 import java.io.IOException;
 
@@ -18,6 +20,25 @@ public class UpdateManu extends HttpServlet {
         String manuName = request.getParameter("manuName");
         String brandOrigin = request.getParameter("brandOrigin");
         String manufactureLocation = request.getParameter("manufactureLocation");
+
+
+        // Lấy admin từ session
+        HttpSession session = request.getSession(false);
+        Object user = (session != null) ? session.getAttribute("customer") : null;
+        int customerID = -1;
+        if (user instanceof entity.Customer customer) {
+            customerID = customer.getId();
+        }
+
+        // Ghi log trước khi cập nhật
+        LogUtil.info(
+                "UPDATE_MANUFACTURER",
+                "Cập nhật nhà sản xuất ID = " + manuID + " thành: Name = " + manuName + ", Origin = " + brandOrigin + ", Location = " + manufactureLocation,
+                customerID,
+                1, // role admin
+                request.getRemoteAddr()
+        );
+
 
         Manufacturer m = new Manufacturer();
         m.setManuID(manuID);
