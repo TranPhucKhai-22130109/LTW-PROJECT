@@ -6,6 +6,7 @@
 package controller.admincontrol.vnpay;
 
 import entity.Cart;
+import entity.Customer;
 import jakarta.servlet.annotation.WebServlet;
 
 import java.io.IOException;import java.net.URLEncoder;
@@ -18,6 +19,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import util.LogUtil;
 
 
 @WebServlet("/create-vnpay-order")
@@ -25,6 +27,10 @@ public class CreateVnpayOrderServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
         Cart cart = (Cart) session.getAttribute("cart");
+        // Logging
+        Object obj = (session != null) ? session.getAttribute("customer") : null;
+        int userID = (obj instanceof Customer customer) ? customer.getId() : -1;
+
 
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
@@ -44,6 +50,12 @@ public class CreateVnpayOrderServlet extends HttpServlet {
         String paymentMethod = request.getParameter("payment");
 
         long amount = (long) Double.parseDouble(priceDiscountStr.equals("noV") ? amountStr : priceDiscountStr);
+
+        // Log thông tin đơn hàng được tạo
+        LogUtil.info("CREATE_VNPAY_ORDER",
+                "Khởi tạo đơn hàng VNPAY: name=" + name + ", email=" + email + ", phone=" + phone + ", amount=" + amount,
+                userID, 1, request.getRemoteAddr());
+
 
         String OrderID = UUID.randomUUID().toString();
         String vnp_ReturnUrl = "https://localhost:8088/Project-LTW/vnpay-return";
@@ -79,6 +91,12 @@ public class CreateVnpayOrderServlet extends HttpServlet {
         LocalDateTime now = LocalDateTime.now();
         vnp_Params.put("vnp_CreateDate", now.format(formatter));
 
+        // Log tham số VNPAY trước khi tạo hash và redirect
+        LogUtil.debug("CREATE_VNPAY_ORDER",
+                "Tham số VNPAY: " + vnp_Params.toString(),
+                userID, 1, request.getRemoteAddr());
+
+
         // Build hash data
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         Collections.sort(fieldNames);
@@ -99,6 +117,12 @@ public class CreateVnpayOrderServlet extends HttpServlet {
 
         String vnp_SecureHash = VnPayConfig.hmacSHA512(VnPayConfig.vnp_HashSecret, hashData.toString());
         String paymentUrl = VnPayConfig.vnp_PayUrl + "?" + query + "&vnp_SecureHash=" + vnp_SecureHash;
+
+
+        // Log URL thanh toán trước khi redirect
+        LogUtil.info("CREATE_VNPAY_ORDER",
+                "Redirect tới URL thanh toán: " + paymentUrl,
+                userID, 1, request.getRemoteAddr());
 
         response.sendRedirect(paymentUrl);
     }
