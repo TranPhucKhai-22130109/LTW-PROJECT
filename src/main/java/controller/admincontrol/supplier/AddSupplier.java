@@ -3,10 +3,12 @@ package controller.admincontrol.supplier;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dao.SupplierDAO;
+import entity.Customer;
 import entity.Supplier;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
+import util.LogUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -24,12 +26,25 @@ public class AddSupplier extends HttpServlet {
         supplier.setContactInfo(addSupplierInfo);
         supplier.setAddress(addSupplierAddress);
 
+
         // Get date and time
         LocalDateTime dateTime = LocalDateTime.now();
         supplier.setCreatedAt(String.valueOf(dateTime));
         supplier.setUpdatedAt(String.valueOf(dateTime));
 
         boolean isSuccess = new SupplierDAO().addSupplier(supplier);
+
+        // Ghi log nếu thêm thành công
+        if (isSuccess) {
+            HttpSession session = request.getSession(false);
+            Object obj = (session != null) ? session.getAttribute("customer") : null;
+            int userID = (obj instanceof Customer customer) ? customer.getId() : -1;
+            LogUtil.info("ADD_SUPPLIER", "Thêm nhà cung cấp: " +
+                    addSupplierName, userID,
+                    1, request.getRemoteAddr());
+        }
+
+
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("isSuccess", isSuccess);
 
