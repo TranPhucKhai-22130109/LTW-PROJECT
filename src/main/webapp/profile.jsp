@@ -119,6 +119,7 @@
                                             <h4>Ngày tạo đơn: </h4>
                                             <h4>${o.date}</h4>
                                         </div>
+
                                         <div>
                                             <h4>Địa chỉ giao hàng: </h4>
                                             <h4>${o.address}</h4>
@@ -130,12 +131,18 @@
                                                class="detail-order">Xem chi
                                                 tiết</a>
                                         </div>
+
                                         <div>
                                             <a style="color: #000;text-decoration: none"
                                                href="#"
-                                               onclick="cancelOrder('${o.oder_code_ghn}')"
+                                               onclick="cancelOrder('${o.oder_code_ghn}','${o.orderID}')"
                                                class="detail-order">Hủy đơn hàng</a>
                                         </div>
+                                        <form data-id="${o.orderID}" style="display: none" method="post"
+                                              action="admin/cancel-order" id="cancel-order">
+                                            <input name="order_id" value="${o.orderID}">
+                                            <button type="button">${o.orderID}</button>
+                                        </form>
                                     </div>
                                 </c:forEach>
                             </div>
@@ -146,8 +153,9 @@
         </div>
     </main>
 </div>
+
 <%--Biến toàn cục--%>
-<script src="<%=request.getContextPath()%>/assets/js/GLOBAL_VAR.js"></script>
+<script src="<%=request.getContextPath()%>/assets/js/GHN.js"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -175,42 +183,40 @@
             });
         });
 
-        // cập nhật text cho status order
-        document.querySelectorAll('.status_order').forEach(el => {
-            el.textContent = translateStatus(el.textContent.trim());
-        });
-
     });
 </script>
 
 <%--Hủy đơn--%>
 <script>
-    // async function cancelOrder(order_code) {
-    //
-    //     try {
-    //
-    //         // Hủy đơn
-    //         let response = await fetch(`https://dev-online-gateway.ghn.vn/shiip/public-api/v2/switch-status/cancel`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Token': token_api,
-    //                 'ShopID': shop_id,
-    //             },
-    //             body: JSON.stringify({
-    //                 'order_codes': [order_code]
-    //             })
-    //         });
-    //         let rs = await response.json();
-    //         if (rs.code === 200 && rs.message === 'Success') {
-    //             alert('Hủy đơn hàng thành công')
-    //             // xử lí cập nhật lại kho khi hủy đơn
-    //         }
-    //
-    //     } catch (error) {
-    //         console.error('Lỗi khi gọi API:', error);
-    //     }
-    // }
+    async function cancelOrder(order_code_ghn, orderID) {
+        const confirmed = confirm('Bạn có muốn hủy đơn?');
+        if (!confirmed) return;
+
+        try {
+            // Hủy đơn
+            let response = await fetch(`https://dev-online-gateway.ghn.vn/shiip/public-api/v2/switch-status/cancel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Token': token_api,
+                    'ShopID': shop_id,
+                },
+                body: JSON.stringify({
+                    'order_codes': [order_code_ghn]
+                })
+            });
+            let rs = await response.json();
+            if (rs.code === 200 && rs.message === 'Success') {
+                alert('Hủy đơn hàng thành công')
+                // xử lí cập nhật lại kho khi hủy đơn
+                document.querySelector("form[data-id='" + orderID + "']").submit();
+
+            }
+
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
 </script>
 
 <script>

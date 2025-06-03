@@ -148,7 +148,7 @@
 </div>
 
 <%--Biến toàn cục--%>
-<script src="<%=request.getContextPath()%>/assets/js/GLOBAL_VAR.js"></script>
+<script src="<%=request.getContextPath()%>/assets/js/GHN.js"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {

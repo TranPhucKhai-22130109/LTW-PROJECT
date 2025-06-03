@@ -94,7 +94,7 @@
 
                     <label for="addressShipping">Địa chỉ giao hàng cụ thể </label>
                     <input type="text" name="addressShipping" id="addressShipping" placeholder="Số Nhà, Tên Đường"
-                           required="required" />
+                           required="required"/>
                 </div>
 
                 <%--         Order code GHN       --%>
@@ -171,7 +171,8 @@
                     <div class="row">
                         <span>Tạm tính</span>
                         <% Cart c = (Cart) session.getAttribute("cart");%>
-                        <input type="text" class="prePrice" name="prePrice" value="<%= c == null ? 0 : c.getTotal() %>" readonly>
+                        <input type="text" class="prePrice" name="prePrice" value="<%= c == null ? 0 : c.getTotal() %>"
+                               readonly>
                     </div>
                     <div class="row">
                         <span>Phí vận chuyển</span>
@@ -191,11 +192,14 @@
                         style="color: #338dbc; text-decoration: none"
                 >Giỏ hàng</a
                 >
-                <button type="submit" class="btn-total">Hoàn tất đơn hàng</button>
-                <button
-                        onclick="createOrderGHN()"
-                        type="button" class="btn-total" style="background-color: #00B58D">Test API tạo đơn
-                </button>
+                <%--                <button type="submit" class="btn-total">Hoàn tất đơn hàng</button>--%>
+                <%--                <button--%>
+                <%--                        onclick="createOrderGHN()"--%>
+                <%--                        type="button" class="btn-total" style="background-color: #00B58D">Test API tạo đơn--%>
+                <%--                </button>--%>
+
+                <button type="button" class="btn-total" onclick="handleSubmit()">Hoàn tất đơn hàng</button>
+
             </div>
         </form>
     </div>
@@ -204,7 +208,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script src="<%=request.getContextPath()%>/assets/js/GLOBAL_VAR.js"></script>
 
-<%--Tạo cart item để truyền vào param item--%>
+<%-- Tạo cart item để truyền vào param item--%>
 <script>
     const cartItems = [];
     <c:forEach items="${sessionScope.cart.list}" var="cp">
@@ -218,30 +222,33 @@
 
 
 </script>
-<%--=============== Tính cost ship <%--===============--%>
+
+<%-- Tính cost ship --%>
 <script src="<%=request.getContextPath()%>/assets/js/GHN.js"></script>
 
-<%--Chọn pthuc thanh toán--%>
+<%-- Chọn pthuc thanh toán--%>
 <script>
-    document.querySelector("form").addEventListener("submit", async function (e) {
+    function handleSubmit() {
         const selectedPayment = document.querySelector('input[name="payment"]:checked');
         if (!selectedPayment) {
             alert("Vui lòng chọn phương thức thanh toán.");
-            e.preventDefault();
+            event.preventDefault();
             return;
         }
 
         // Chuyển hướng action nếu chọn VNPay
         if (selectedPayment.value === "VNPay") {
-            this.action = "create-vnpay-order";
+            let form = document.querySelector("form");
+            form.action = "create-vnpay-order";
+            form.submit()
         } else {
-            this.action = "create-order"; // Servlet xử lý COD/ATM
+            createOrderGHN()
         }
-    });
+    }
 
 </script>
 
-<%--Áp mã giảm giá--%>
+<%-- Áp mã giảm giá--%>
 <script>
     $("#voucher-btn").on("click", function () {
         let data = $("#voucher").val()

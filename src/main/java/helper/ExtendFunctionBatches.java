@@ -56,5 +56,4 @@ public class ExtendFunctionBatches {
             System.out.println("The following productIDs do not exist in the products table: " + nonExistingProductIds);
         }
     }
-
 }
