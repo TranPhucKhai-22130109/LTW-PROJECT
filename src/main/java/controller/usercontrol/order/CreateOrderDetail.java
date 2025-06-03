@@ -1,5 +1,6 @@
 package controller.usercontrol.order;
 
+import dao.BatchDAO;
 import dao.InventoryDAO;
 import dao.OrderDetailDAO;
 import entity.Cart;
@@ -30,7 +31,8 @@ public class CreateOrderDetail extends HttpServlet {
                     cartItem.getTotalPrice(), cartItem.getTitle(), cartItem.getImg());
 
             // cập nhật slg sp đang chờ xử lí
-            inventoryDAO.UpdateQuantityReservedProduct(cartItem.getProductID(), cartItem.getQuantity());
+//            inventoryDAO.UpdateQuantityReservedProduct(cartItem.getProductID(), cartItem.getQuantity());
+            new BatchDAO().deductBatchesForOrder(ordID,cartItem.getProductID(), cartItem.getQuantity());
         }
 
         // xóa giỏ hàng (session + db)

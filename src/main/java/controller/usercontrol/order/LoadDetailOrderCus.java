@@ -19,6 +19,7 @@ public class LoadDetailOrderCus extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String orderID = request.getParameter("oID");
+        String orderCodeGHN = request.getParameter("odCode");
         // lấy order và order detail
         HttpSession session = request.getSession(false);
         Customer cus = (Customer) session.getAttribute("customer");
@@ -43,6 +44,7 @@ public class LoadDetailOrderCus extends HttpServlet {
         request.setAttribute("order", order);
         request.setAttribute("listOrd", listOrdetail);
         request.setAttribute("pay", pay);
+        request.setAttribute("orderCodeGHN", orderCodeGHN);
 
         request.getRequestDispatcher("detail-order.jsp").forward(request, response);
 

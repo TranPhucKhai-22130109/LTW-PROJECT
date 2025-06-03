@@ -2,11 +2,10 @@ package dao;
 
 import entity.Batch;
 import context.JDBIContext;
+import entity.OrderBatchDetails;
 import org.jdbi.v3.core.Handle;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BatchDAO {
@@ -243,6 +242,163 @@ public class BatchDAO {
                 )
                 .bindList("productIDs", productIDs)
                 .execute();
+    }
+
+    // get batch by id (FIFO)
+    public boolean deductBatchesForOrder(String orderID, int productID, int orderQuantity) {
+        return JDBIContext.getJdbi().withHandle(handle -> {
+            handle.begin();
+
+            try {
+                // 1. Lấy danh sách batch theo productID còn tồn kho (FIFO)
+                List<Batch> batches = handle.createQuery("""
+                                SELECT * FROM batches
+                                WHERE productID = :productID AND isDeleted = 0 AND isUsed = 1 AND quantity > 0
+                                ORDER BY importDate ASC
+                                """)
+                        .bind("productID", productID)
+                        .mapToBean(Batch.class)
+                        .list();
+
+
+                // Nếu không tìm thấy batch phù hợp
+                if (batches.isEmpty()) {
+                    handle.rollback();
+                    System.err.println("Không tìm thấy lô hàng phù hợp cho sản phẩm ID: " + productID);
+                    return false;
+                }
+
+
+                int remainingQty = orderQuantity;
+
+                for (Batch batch : batches) {
+                    if (remainingQty <= 0) break;
+
+                    int batchQty = batch.getQuantity();
+                    int deductQty = Math.min(batchQty, remainingQty);
+                    int newQty = batchQty - deductQty;
+
+                    // 2. Cập nhật số lượng lô
+                    handle.createUpdate("""
+                                    UPDATE batches
+                                    SET quantity = :newQty
+                                    WHERE batchID = :batchID
+                                    """)
+                            .bind("newQty", newQty)
+                            .bind("batchID", batch.getBatchID())
+                            .execute();
+
+
+                    handle.createUpdate("""
+                                        INSERT INTO order_batch_details (orderID, batchID, quantity)
+                                        VALUES (:orderID, :batchID, :quantity)
+                                    """)
+                            .bind("orderID", orderID)
+                            .bind("batchID", batch.getBatchID())
+                            .bind("quantity", deductQty)
+                            .execute();
+
+                    remainingQty -= deductQty;
+                }
+
+                if (remainingQty > 0) {
+                    handle.rollback();
+                    System.out.println("Không đủ hàng tồn cho productID: " + productID);
+                    return false;
+                }
+
+                // 3. Đồng bộ inventory
+                syncInventoryForProductIDs(handle, List.of(productID));
+
+                handle.commit();
+                return true;
+
+            } catch (Exception e) {
+                handle.rollback();
+                e.printStackTrace();
+                return false;
+            }
+        });
+    }
+
+    public boolean cancelOrder(String orderID) {
+        return JDBIContext.getJdbi().withHandle(handle -> {
+            handle.begin();
+
+            try {
+                // 1. Lấy thông tin các batch đã bị trừ trong đơn hàng
+                List<OrderBatchDetails> batchDetails = handle.createQuery("""
+                                    SELECT obd.batchID, obd.quantity, b.productID
+                                    FROM order_batch_details obd
+                                    JOIN batches b ON obd.batchID = b.batchID
+                                    WHERE obd.orderID = :orderID
+                                """)
+                        .bind("orderID", orderID)
+                        .mapToBean(OrderBatchDetails.class)
+                        .list();
+
+                if (batchDetails.isEmpty()) {
+                    handle.rollback();
+                    System.out.println("Không tìm thấy chi tiết đơn hàng để hủy.");
+                    return false;
+                }
+
+                Set<Integer> affectedProductIDs = new HashSet<>();
+
+                for (OrderBatchDetails row : batchDetails) {
+                    int batchID = row.getBatchID();
+                    int quantity = row.getQuantity();
+                    int productID = row.getProductID();
+
+                    // Cập nhật lại số lượng cho batch
+                    handle.createUpdate("""
+                                        UPDATE batches
+                                        SET quantity = quantity + :quantity
+                                        WHERE batchID = :batchID
+                                    """)
+                            .bind("quantity", quantity)
+                            .bind("batchID", batchID)
+                            .execute();
+
+                    affectedProductIDs.add(productID);
+                }
+
+                // 2. Xoá dữ liệu trong bảng chi tiết đơn hàng (nếu không muốn giữ lại)
+                handle.createUpdate("""
+                                    DELETE FROM order_batch_details
+                                    WHERE orderID = :orderID
+                                """)
+                        .bind("orderID", orderID)
+                        .execute();
+
+                // 3. (Tuỳ chọn) Đánh dấu đơn hàng đã bị huỷ nếu có trạng thái
+                handle.createUpdate("""
+                                    UPDATE orders
+                                    SET status = 'cancel'
+                                    WHERE orderID = :orderID
+                                """)
+                        .bind("orderID", orderID)
+                        .execute();
+
+                // 4. Đồng bộ lại inventory
+                syncInventoryForProductIDs(handle, new ArrayList<>(affectedProductIDs));
+
+                handle.commit();
+                return true;
+
+            } catch (Exception e) {
+                handle.rollback();
+                e.printStackTrace();
+                return false;
+            }
+        });
+    }
+
+
+    public static void main(String[] args) {
+        BatchDAO dao = new BatchDAO();
+//        System.out.println(dao.deductBatchesForOrder(144, 440));
+        System.out.println(dao.cancelOrder("7"));
     }
 
 }

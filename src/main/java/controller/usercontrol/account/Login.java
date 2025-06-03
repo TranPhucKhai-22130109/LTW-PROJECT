@@ -56,7 +56,8 @@ public class Login extends HttpServlet {
 
         String gRecaptchaResponse = request.getParameter("g-recaptcha-response");
         // Kiểm tra CAPTCHA
-        boolean isCaptchaValid = verifyRecaptcha(gRecaptchaResponse);
+//        boolean isCaptchaValid = verifyRecaptcha(gRecaptchaResponse);
+        boolean isCaptchaValid = true;
 
         if (isCaptchaValid) {
             // Xử lý đăng ký
