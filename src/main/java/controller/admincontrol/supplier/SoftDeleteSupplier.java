@@ -21,7 +21,7 @@ public class SoftDeleteSupplier extends HttpServlet {
 
         if (option != null) {
             new SupplierDAO().unSoftDeleteSupplier(Integer.parseInt(supplierID));
-            LogUtil.info("RESTORE_SUPPLIER", "Khôi phục nhà cung cấp với ID: " + supplierID, userID, 3, request.getRemoteAddr());
+            LogUtil.info("RESTORE_SUPPLIER", "Khôi phục nhà cung cấp với ID: " + supplierID, userID, 1, request.getRemoteAddr());
         } else {
             boolean deleted = new SupplierDAO().softDeleteSupplier(Integer.parseInt(supplierID));
             if (!deleted) {
@@ -29,7 +29,7 @@ public class SoftDeleteSupplier extends HttpServlet {
                 request.setAttribute("error", "Xóa thất bại.");
                 request.getRequestDispatcher("/admin/supplier/jsp").forward(request, response);
             }
-            LogUtil.info("DELETE_SUPPLIER", "Xóa mềm nhà cung cấp với ID: " + supplierID, userID, 2, request.getRemoteAddr());
+            LogUtil.info("DELETE_SUPPLIER", "Xóa mềm nhà cung cấp với ID: " + supplierID, userID, 1, request.getRemoteAddr());
         }
 
         response.sendRedirect(request.getContextPath() + "/admin/list-supplier");

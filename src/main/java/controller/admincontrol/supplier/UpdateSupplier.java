@@ -35,7 +35,7 @@ public class UpdateSupplier extends HttpServlet {
         HttpSession session = request.getSession(false);
         Object obj = (session != null) ? session.getAttribute("customer") : null;
         int userID = (obj instanceof Customer customer) ? customer.getId() : -1;
-        LogUtil.info("UPDATE_SUPPLIER", "Cập nhật nhà cung cấp với ID: " + supplierID, userID, 2, request.getRemoteAddr());
+        LogUtil.info("UPDATE_SUPPLIER", "Cập nhật nhà cung cấp với ID: " + supplierID, userID, 1, request.getRemoteAddr());
 
         // Trả kết quả
 

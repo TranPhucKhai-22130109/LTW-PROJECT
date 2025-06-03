@@ -1,11 +1,13 @@
 package controller.admincontrol.user;
 
 import dao.CustomerDAO;
+import entity.Customer;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
 import helper.MaHoaMK;
 import org.json.JSONObject;
+import util.LogUtil;
 
 import java.io.IOException;
 
@@ -60,6 +62,14 @@ public class AddUser extends HttpServlet {
                     // Thêm thành công
                     msg = "Thêm thành công.";
                     isSuccess = true;
+
+                    // Logging khi thêm user thành công với role = 1
+                    HttpSession session = request.getSession(false);
+                    Object obj = (session != null) ? session.getAttribute("customer") : null;
+                    int userID = (obj instanceof Customer customer) ? customer.getId() : -1;
+
+                    LogUtil.info("ADD_USER", "Thêm người dùng mới với email: " + email + ", role: " + role, userID, 1, request.getRemoteAddr());
+
                 }
 
             } catch (Exception e) {
