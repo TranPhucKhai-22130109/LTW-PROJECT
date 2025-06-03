@@ -71,6 +71,18 @@ public class OrderDAO {
 
     }
 
+    // cập nhật trạng thái đơn
+    public boolean updateStatus(String orderID, String status) {
+        int rowsAffected = JDBIContext.getJdbi().withHandle(handle ->
+                handle.createUpdate("UPDATE orders SET status = :status WHERE orderID = :orderID")
+                        .bind("status", status)
+                        .bind("orderID", orderID)
+                        .execute()
+        );
+        return rowsAffected > 0;
+    }
+
+
     public static void main(String[] args) {
         OrderDAO dao = new OrderDAO();
         System.out.println(dao.totalOrderPrice());

@@ -29,17 +29,15 @@ public class CreateOrder extends HttpServlet {
         String addressShipping = request.getParameter("addressShipping");
 
         String payment = request.getParameter("payment");
-        String statusOrder = "";
+        String statusOrder = "ready_to_pick";
 
         String oder_code_ghn = request.getParameter("oder_code_ghn");
 
         // lấy ra phương thức thanh toán
         if ("VNPay".equalsIgnoreCase(payment)) {
             payment = "VNPAY";
-            statusOrder = "đã thanh toán";
         } else {
             payment = "COD";
-            statusOrder = "chưa thanh toán";
         }
 
         customer.setName(name);

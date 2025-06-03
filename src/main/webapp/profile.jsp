@@ -99,7 +99,7 @@
                                     <div class="order_Customer bg-white p-3 rounded">
                                         <div>
                                             <h4>Mã đơn hàng: </h4>
-                                            <h4>${o.orderID}</h4>
+                                            <h4>${o.oder_code_ghn}</h4>
                                         </div>
 
                                         <div>
@@ -124,10 +124,6 @@
                                             <h4>${o.address}</h4>
                                         </div>
 
-                                        <div>
-                                            <h4>Tình trạng thanh toán: </h4>
-                                            <h4>${o.status}</h4>
-                                        </div>
                                         <div>
                                             <a style="color: #000;text-decoration: none"
                                                href="load-detail-ord-cus?oID=${o.orderID}&&odCode=${o.oder_code_ghn}"
@@ -178,36 +174,122 @@
                 }
             });
         });
+
+        // cập nhật text cho status order
+        document.querySelectorAll('.status_order').forEach(el => {
+            el.textContent = translateStatus(el.textContent.trim());
+        });
+
     });
 </script>
 
-<%--Fetch--%>
+<%--Hủy đơn--%>
 <script>
-    async function cancelOrder(order_code) {
+    // async function cancelOrder(order_code) {
+    //
+    //     try {
+    //
+    //         // Hủy đơn
+    //         let response = await fetch(`https://dev-online-gateway.ghn.vn/shiip/public-api/v2/switch-status/cancel`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Token': token_api,
+    //                 'ShopID': shop_id,
+    //             },
+    //             body: JSON.stringify({
+    //                 'order_codes': [order_code]
+    //             })
+    //         });
+    //         let rs = await response.json();
+    //         if (rs.code === 200 && rs.message === 'Success') {
+    //             alert('Hủy đơn hàng thành công')
+    //             // xử lí cập nhật lại kho khi hủy đơn
+    //         }
+    //
+    //     } catch (error) {
+    //         console.error('Lỗi khi gọi API:', error);
+    //     }
+    // }
+</script>
 
-        try {
+<script>
+    // translate status
+    function translateStatus(status) {
+        let message = '';
 
-            // Lấy thông trạng thái đơn
-            let response = await fetch(`https://dev-online-gateway.ghn.vn/shiip/public-api/v2/switch-status/cancel`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Token': token_api,
-                    'ShopID': shop_id,
-                },
-                body: JSON.stringify({
-                    'order_codes': [order_code]
-                })
-            });
-            let rs = await response.json();
-            if (rs.code === 200 && rs.message === 'Success') {
-                alert('Hủy đơn hàng thành công')
-                // xử lí cập nhật lại kho
-            }
-
-        } catch (error) {
-            console.error('Lỗi khi gọi API:', error);
+        switch (status) {
+            case 'ready_to_pick':
+                message = 'Chờ lấy hàng';
+                break;
+            case 'picking':
+                message = 'Đang lấy hàng';
+                break;
+            case 'money_collect_picking':
+                message = 'Đang tương tác với người gửi';
+                break;
+            case 'picked':
+                message = 'Lấy hàng thành công';
+                break;
+            case 'storing':
+                message = 'Nhập kho';
+                break;
+            case 'transporting':
+                message = 'Đang trung chuyển';
+                break;
+            case 'sorting':
+                message = 'Đang phân loại';
+                break;
+            case 'delivering':
+                message = 'Đang giao hàng';
+                break;
+            case 'delivered':
+                message = 'Giao hàng thành công';
+                break;
+            case 'money_collect_delivering':
+                message = 'Đang tương tác với người nhận';
+                break;
+            case 'delivery_fail':
+                message = 'Giao hàng không thành công';
+                break;
+            case 'waiting_to_return':
+                message = 'Chờ xác nhận giao lại';
+                break;
+            case 'return':
+                message = 'Chuyển hoàn';
+                break;
+            case 'return_transporting':
+                message = 'Đang trung chuyển hàng hoàn';
+                break;
+            case 'return_sorting':
+                message = 'Đang phân loại hàng hoàn';
+                break;
+            case 'returning':
+                message = 'Đang hoàn hàng';
+                break;
+            case 'return_fail':
+                message = 'Hoàn hàng không thành công';
+                break;
+            case 'returned':
+                message = 'Hoàn hàng thành công';
+                break;
+            case 'cancel':
+                message = 'Đơn huỷ';
+                break;
+            case 'exception':
+                message = 'Hàng ngoại lệ';
+                break;
+            case 'lost':
+                message = 'Hàng thất lạc';
+                break;
+            case 'damage':
+                message = 'Hàng hư hỏng';
+                break;
+            default:
+                message = 'Trạng thái không xác định';
+                break;
         }
+        return message;
     }
 </script>
 </body>

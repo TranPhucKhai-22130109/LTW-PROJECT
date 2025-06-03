@@ -24,7 +24,7 @@
 </head>
 <body>
 <span><%String orderCodeGHN = (String) request.getAttribute("orderCodeGHN"); %></span>
-<input id="order_code" value="<%=orderCodeGHN%>">
+<input id="order_code" type="hidden" value="<%=orderCodeGHN%>">
 
 <div class="Page-profile">
     <main class="container-profile">
@@ -59,8 +59,16 @@
                         <!-- Order Details -->
                         <div class="order-details">
                             <div class="order-header">
-                                <h2>Mã đơn hàng: ${order.orderID}</h2>
-                                <p>Ngày tạo đơn: ${order.date} <span class="status">${order.status} </span></p>
+                                <h2>Mã đơn hàng: ${order.oder_code_ghn}</h2>
+                                <p>Ngày tạo đơn: ${order.date} <span class="status">
+                                   <c:if test="${pay.payMethods == 'COD'}">
+                                       Chưa thanh toán
+                                   </c:if>
+                                       <c:if test="${pay.payMethods == 'VNPAY'}">
+                                           Đã thanh toán
+                                       </c:if>
+
+                                     </span></p>
 
                             </div>
                             <div class="product-list">
@@ -122,9 +130,9 @@
                                 <div class="payment-method">
                                     <h4>Trạng thái đơn hàng</h4>
                                     <ul>
-                                        <li>Phương thức: <span>${pay.payMethods}</span></li>
+                                        <li>Phương thức thanh toán: <span>${pay.payMethods}</span></li>
                                         <li>Khách hàng: <span>${sessionScope.customer.name}</span></li>
-                                        <li>Trạng thái: <span class="status_ghn"></span></li>
+                                        <li><strong>Trạng thái: <span class="status_ghn"></span></strong></li>
                                     </ul>
                                 </div>
                             </div>
@@ -171,9 +179,9 @@
     );
 </script>
 
-<%--Fetch--%>
+<%-- Fetch lấy trạng thái đơn--%>
 <script>
-    // Fetch lấy trạng thái đơn
+
     async function getDetail() {
         let order_code = document.getElementById('order_code').value
         try {
@@ -191,13 +199,12 @@
             });
             let status = await response.json();
             let target_val = status.data.status;
-            if (target_val == 'cancel') {
-                target_val = 'Đã hủy'
-            } else {
-                target_val = 'Chờ lấy hàng'
+            if (target_val != null) {
+                // gọi hàm cập nhật status xuống db
+                await updateStatus('${order.orderID}', status.data.status)
             }
-
-            document.querySelector('.status_ghn').textContent = target_val
+            // cập nhật text cho status order
+            document.querySelector('.status_ghn').textContent = translateStatus(target_val.trim())
 
         } catch (error) {
             console.error('Lỗi khi gọi API:', error);
@@ -223,7 +230,6 @@
             });
             let fee = await response.json();
             const mainService = fee.data.detail.main_service;
-            console.log('Main service:', mainService);
             document.querySelector('.fee').textContent = mainService.toLocaleString('vi-VN') + '₫';
 
         } catch (error) {
@@ -231,6 +237,112 @@
         }
     }
 
+    // cập nhật status từ api xuóng db
+    async function updateStatus(orderID, status) {
+        let url = `${pageContext.request.contextPath}/admin/update-status-order`
+        try {
+            let params = new URLSearchParams();
+            params.append("orderID", orderID);
+            params.append("status", status);
+
+            let response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params.toString()
+            });
+
+            let rs = await response.json();
+            if (rs.isSuccess) {
+                console.log('Cập nhật thành công');
+            } else {
+                console.log('Cập nhật thất bại');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    }
+
+    // translate status
+    function translateStatus(status) {
+        let message = '';
+
+        switch (status) {
+            case 'ready_to_pick':
+                message = 'Chờ lấy hàng';
+                break;
+            case 'picking':
+                message = 'Đang lấy hàng';
+                break;
+            case 'money_collect_picking':
+                message = 'Đang tương tác với người gửi';
+                break;
+            case 'picked':
+                message = 'Lấy hàng thành công';
+                break;
+            case 'storing':
+                message = 'Nhập kho';
+                break;
+            case 'transporting':
+                message = 'Đang trung chuyển';
+                break;
+            case 'sorting':
+                message = 'Đang phân loại';
+                break;
+            case 'delivering':
+                message = 'Đang giao hàng';
+                break;
+            case 'delivered':
+                message = 'Giao hàng thành công';
+                break;
+            case 'money_collect_delivering':
+                message = 'Đang tương tác với người nhận';
+                break;
+            case 'delivery_fail':
+                message = 'Giao hàng không thành công';
+                break;
+            case 'waiting_to_return':
+                message = 'Chờ xác nhận giao lại';
+                break;
+            case 'return':
+                message = 'Chuyển hoàn';
+                break;
+            case 'return_transporting':
+                message = 'Đang trung chuyển hàng hoàn';
+                break;
+            case 'return_sorting':
+                message = 'Đang phân loại hàng hoàn';
+                break;
+            case 'returning':
+                message = 'Đang hoàn hàng';
+                break;
+            case 'return_fail':
+                message = 'Hoàn hàng không thành công';
+                break;
+            case 'returned':
+                message = 'Hoàn hàng thành công';
+                break;
+            case 'cancel':
+                message = 'Đơn huỷ';
+                break;
+            case 'exception':
+                message = 'Hàng ngoại lệ';
+                break;
+            case 'lost':
+                message = 'Hàng thất lạc';
+                break;
+            case 'damage':
+                message = 'Hàng hư hỏng';
+                break;
+            default:
+                message = 'Trạng thái không xác định';
+                break;
+        }
+        return message;
+    }
+
+    //
     getDetail()
     getCostShip()
 </script>
